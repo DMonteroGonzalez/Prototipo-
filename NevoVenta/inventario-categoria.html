@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Inventario — Gestión de Categorías</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: CATEGORÍAS ============ */
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;}
+  .page-head h1{font-size:18px;font-weight:700;letter-spacing:-.2px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .stats{display:flex;gap:10px;}
+  .stat-box{border:1px solid var(--border);border-radius:10px;padding:7px 14px;text-align:right;min-width:96px;}
+  .stat-box span{display:block;font-size:8.5px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .stat-box b{font-size:13.5px;}
+  .toolbar{display:flex;gap:12px;margin-bottom:14px;}
+  .toolbar .search{flex:1;padding:10px 14px;font-size:12.5px;border-radius:10px;}
+  .btn-add{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:0 20px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--font);transition:.15s;}
+  .btn-add:hover{background:var(--teal-dark);}
+  .cat-list{display:flex;flex-direction:column;gap:12px;flex:1;}
+  .cat-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 16px;transition:.15s;}
+  .cat-card:hover{border-color:#c3d4d2;box-shadow:0 1px 4px rgba(15,118,110,.07);}
+  .cat-card.removing{opacity:0;transform:translateX(16px);transition:.25s;}
+  .cat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cat-info{flex:1;min-width:0;}
+  .cat-title{display:flex;align-items:center;gap:8px;}
+  .cat-title b{font-size:14px;}
+  .badge-act{background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;border-radius:20px;padding:2px 8px;letter-spacing:.3px;}
+  .badge-18{background:var(--amber-bg);color:var(--amber);font-size:9px;font-weight:700;border-radius:20px;padding:2px 7px;}
+  .cat-meta{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .cat-meta .count{color:var(--text);font-weight:700;}
+  .cat-meta .dot{margin:0 6px;color:var(--muted-2);}
+  .cat-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .btn-edit{display:flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:600;color:var(--teal);cursor:pointer;font-family:var(--font);transition:.15s;}
+  .btn-edit:hover{background:var(--teal-soft);border-color:var(--teal);}
+  .btn-trash{width:30px;height:30px;border:none;background:transparent;color:var(--muted-2);cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .btn-trash:hover{background:var(--red-bg);color:var(--red);}
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 4px 4px;font-size:10.5px;color:var(--muted);border-top:1px solid #f1f5f9;margin-top:10px;}
+  .foot-note{display:flex;align-items:center;gap:6px;color:var(--muted);}
+  .nav-wrap.open .submenu{max-height:150px;}
+  .sub-item.active{color:#5eead4;background:#16414a;font-weight:600;}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="page-head">
+      <div>
+        <h1>Gestión de Categorías de Inventario</h1>
+        <div class="sub">Organiza, consulta y administra las agrupaciones de productos del negocio</div>
+      </div>
+      <div class="stats">
+        <div class="stat-box"><span>TOTAL</span><b>4 Categorías</b></div>
+        <div class="stat-box"><span>ARTÍCULOS</span><b>239 Prod.</b></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="cat-search" placeholder="Buscar categoría...">
+      </div>
+      <button class="btn-add" id="btn-add">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar
+      </button>
+    </div>
+
+    <div class="cat-list" id="cat-list">
+
+      <div class="cat-card">
+        <div class="cat-icon" style="background:#d8efec;color:#0f766e;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.7L18.6 9l-4.7 1.9L12 15.6l-1.9-4.7L5.4 9l4.7-1.3L12 3z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2zM5 16l.6 1.6 1.6.6-1.6.6L5 20.4l-.6-1.6-1.6-.6 1.6-.6L5 16z"/></svg>
+        </div>
+        <div class="cat-info">
+          <div class="cat-title"><b>Aseo</b><span class="badge-act">Activa</span></div>
+          <div class="cat-meta"><span class="count">24 productos en catálogo</span><span class="dot">•</span>Cód: CAT-ASE<span class="dot">•</span>Desinfectantes, detergentes y limpieza general</div>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-trash" title="Eliminar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-icon" style="background:#fef3c7;color:#b45309;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+        </div>
+        <div class="cat-info">
+          <div class="cat-title"><b>Papelería</b><span class="badge-act">Activa</span></div>
+          <div class="cat-meta"><span class="count">58 productos en catálogo</span><span class="dot">•</span>Cód: CAT-PAP<span class="dot">•</span>Cuadernos, bolígrafos, impresos y suministros</div>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-trash" title="Eliminar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-icon" style="background:#f3e8ff;color:#7e22ce;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4v3.5L16.5 8v11a2.5 2.5 0 0 1-2.5 2.5h-4A2.5 2.5 0 0 1 7.5 19V8L10 5.5V2z"/><path d="M7.5 12h9M7.5 16h9"/></svg>
+        </div>
+        <div class="cat-info">
+          <div class="cat-title"><b>Bebidas alcohólicas</b><span class="badge-act">Activa</span><span class="badge-18">+18</span></div>
+          <div class="cat-meta"><span class="count">42 productos en catálogo</span><span class="dot">•</span>Cód: CAT-ALC<span class="dot">•</span>Cervezas, licores, vinos y destilados</div>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-trash" title="Eliminar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-card">
+        <div class="cat-icon" style="background:#dcfce7;color:#15803d;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/><path d="M17 9h2a2.5 2.5 0 0 1 0 5h-2M7 2v2.5M11 2v2.5"/></svg>
+        </div>
+        <div class="cat-info">
+          <div class="cat-title"><b>Alimentos y bebidas</b><span class="badge-act">Activa</span></div>
+          <div class="cat-meta"><span class="count">115 productos en catálogo</span><span class="dot">•</span>Cód: CAT-ALM<span class="dot">•</span>Snacks, abarrotes, lácteos y jugos no alcohólicos</div>
+        </div>
+        <div class="cat-actions">
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-trash" title="Eliminar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-foot">
+      <span>Mostrando 4 de 4 categorías registradas</span>
+      <span class="foot-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+        Los cambios en categorías impactan automáticamente al módulo POS y Facturación
+      </span>
+    </div>
+  </div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // Búsqueda en vivo de categorías
+  const search = document.getElementById('cat-search');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    document.querySelectorAll('.cat-card').forEach(c => {
+      c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+    updateFoot();
+  });
+
+  // Eliminar categoría con animación
+  document.querySelectorAll('.btn-trash').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.cat-card');
+      card.classList.add('removing');
+      setTimeout(() => { card.remove(); updateFoot(); }, 260);
+    });
+  });
+
+  function updateFoot() {
+    const total = document.querySelectorAll('.cat-card').length;
+    document.querySelector('.page-foot span').textContent =
+      `Mostrando ${total} de 4 categorías registradas`;
+    document.querySelector('.stat-box b').textContent = total + ' Categorías';
+  }
+
+  // Botón Agregar (demo): inserta una tarjeta nueva
+  document.getElementById('btn-add').addEventListener('click', () => {
+    const list = document.getElementById('cat-list');
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.innerHTML = `
+      <div class="cat-icon" style="background:#e0e7ff;color:#4338ca;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+      </div>
+      <div class="cat-info">
+        <div class="cat-title"><b>Nueva categoría</b><span class="badge-act">Activa</span></div>
+        <div class="cat-meta"><span class="count">0 productos en catálogo</span><span class="dot">•</span>Cód: CAT-NVA<span class="dot">•</span>Sin descripción</div>
+      </div>
+      <div class="cat-actions">
+        <button class="btn-edit">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          Editar
+        </button>
+        <button class="btn-trash" title="Eliminar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>`;
+    card.querySelector('.btn-trash').addEventListener('click', () => {
+      card.classList.add('removing');
+      setTimeout(() => { card.remove(); updateFoot(); }, 260);
+    });
+    list.appendChild(card);
+    updateFoot();
+  });
+
+  // Navegación del sidebar
+  document.querySelectorAll('.nav-wrap > .nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-wrap > .nav-item').forEach(n => {
+        n.classList.remove('active'); n.style.color = '';
+      });
+      item.classList.add('active'); item.style.color = '';
+    });
+  });
+</script>
+</body>
+</html>

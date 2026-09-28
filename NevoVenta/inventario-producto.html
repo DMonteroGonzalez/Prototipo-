@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo POS — Inventario de Productos</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: PRODUCTOS (BUSCADOR) ============ */
+  .nav-wrap.open .submenu{max-height:150px;}
+  .sub-item.active{color:#5eead4;background:#16414a;font-weight:600;}
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+  .title-row{display:flex;align-items:center;gap:10px;}
+  .page-head h1{font-size:18px;font-weight:700;letter-spacing:-.2px;}
+  .badge-online{display:flex;align-items:center;gap:5px;background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;border-radius:20px;padding:3px 9px;letter-spacing:.4px;}
+  .badge-online i{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .stats{display:flex;gap:10px;}
+  .stat-box{border:1px solid var(--border);border-radius:10px;padding:7px 14px;text-align:right;min-width:100px;}
+  .stat-box span{display:block;font-size:8.5px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .stat-box b{font-size:13.5px;}
+  .stat-warn{background:#fffbeb;border-color:#fde68a;}
+  .stat-warn b{color:var(--amber);}
+  .stat-ok{background:#f0fdfa;border-color:#99e5de;}
+  .stat-ok b{color:var(--teal);}
+
+  .toolbar{display:flex;gap:12px;margin-bottom:12px;}
+  .toolbar .search{flex:1;padding:4px 6px 4px 12px;border-radius:10px;font-size:12.5px;}
+  .toolbar .search input{font-size:12.5px;padding:7px 4px;}
+  .kbd{background:#f1f5f9;border:1px solid var(--border);border-radius:5px;font-size:10px;padding:2.5px 6px;color:var(--muted);white-space:nowrap;font-family:var(--font);}
+  .btn-add{background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--font);transition:.15s;}
+  .btn-add:hover{background:#0f2230;}
+
+  .filter-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;font-size:11px;color:var(--muted);min-height:24px;}
+  .chip{display:none;align-items:center;gap:7px;background:#f0fdfa;border:1px solid #99e5de;color:var(--teal);font-weight:600;border-radius:20px;padding:4px 6px 4px 12px;font-size:11px;}
+  .chip button{border:none;background:transparent;color:var(--teal);cursor:pointer;font-size:13px;line-height:1;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .chip button:hover{background:#ccfbf1;}
+  .result-count{white-space:nowrap;}
+
+  .prod-list{display:flex;flex-direction:column;gap:12px;flex:1;}
+  .prod-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 16px;transition:.15s;}
+  .prod-card:hover{border-color:#c3d4d2;box-shadow:0 1px 4px rgba(15,118,110,.07);}
+  .prod-card.out{border-color:#f3c6c6;background:#fffdfd;}
+  .prod-icon{width:46px;height:46px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;}
+  .prod-icon small{font-size:6px;letter-spacing:1px;font-weight:800;opacity:.75;}
+  .prod-info{flex:1;min-width:0;}
+  .prod-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .prod-title b{font-size:13.5px;}
+  .tag-format{background:#f1f5f9;color:#64748b;font-size:9px;font-weight:600;border-radius:5px;padding:2px 7px;}
+  .tag-out{background:var(--red-bg);color:var(--red);font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;letter-spacing:.5px;}
+  .prod-meta{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .prod-meta .price{color:var(--text);font-weight:600;}
+  .prod-meta .dot{margin:0 6px;color:var(--muted-2);}
+  .prod-side{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .stock-badge{text-align:right;min-width:96px;}
+  .stock-pill{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:3px 10px;}
+  .pill-warn{background:var(--amber-bg);color:var(--amber);}
+  .pill-out{background:var(--red-bg);color:var(--red);}
+  .stock-note{font-size:9px;color:var(--muted-2);margin-top:3px;}
+  .stock-note.warn{color:var(--amber);}
+  .btn-stock{display:flex;align-items:center;gap:6px;background:var(--sidebar);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);transition:.15s;}
+  .btn-stock:hover{background:#0f2230;}
+  .btn-edit{display:flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:600;color:var(--teal);cursor:pointer;font-family:var(--font);transition:.15s;}
+  .btn-edit:hover{background:var(--teal-soft);border-color:var(--teal);}
+  .btn-more{border:none;background:transparent;color:var(--muted-2);cursor:pointer;font-size:15px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:6px;line-height:1;}
+  .btn-more:hover{background:#f1f5f9;color:var(--text);}
+
+  .empty{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:50px 0;}
+  .empty .ic{width:52px;height:52px;border-radius:14px;background:#f1f5f9;color:var(--muted-2);display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .empty b{color:var(--text);font-size:13px;display:block;margin-bottom:4px;}
+  .empty span{font-size:11px;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 4px 4px;font-size:10.5px;color:var(--muted);border-top:1px solid #f1f5f9;margin-top:10px;flex-wrap:wrap;}
+  .foot-note{display:flex;align-items:center;gap:6px;}
+  .foot-note .sync{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite;}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="page-head">
+      <div>
+        <div class="title-row">
+          <h1>Inventario de Productos</h1>
+          <span class="badge-online"><i></i>En línea</span>
+        </div>
+        <div class="sub">Consulta de stock, búsqueda en tiempo real y registro de nuevos artículos</div>
+      </div>
+      <div class="stats">
+        <div class="stat-box"><span>TOTAL</span><b>320 Artículos</b></div>
+        <div class="stat-box stat-warn"><span>STOCK CRÍTICO</span><b>8 Alertas</b></div>
+        <div class="stat-box stat-ok"><span>CATEGORÍAS</span><b>18 Activas</b></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <span class="kbd">Ctrl + F</span>
+        <input type="text" id="prod-search" placeholder="Buscar por nombre, SKU o categoría…" autocomplete="off">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="margin-right:6px;"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <button class="btn-add" id="btn-add">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar Producto
+      </button>
+    </div>
+
+    <div class="filter-row">
+      <span class="chip" id="chip">Filtrado por: <b id="chip-q"></b><button id="chip-x" title="Quitar filtro">×</button></span>
+      <span class="result-count" id="count"></span>
+    </div>
+
+    <div class="prod-list" id="prod-list">
+
+      <div class="prod-card" data-name="leche alquería entera lácteos alq-ent-001">
+        <div class="prod-icon" style="background:#fde8e8;color:#c0392b;">
+          <small>LÁCTEOS</small>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 2.5h7L18 6v14a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V6l2.5-3.5z"/><path d="M6 6.5h12"/><path d="M9.5 2.5 8 6M14.5 2.5 16 6"/><path d="M9 11h6"/></svg>
+        </div>
+        <div class="prod-info">
+          <div class="prod-title"><b>Leche Alquería entera</b><span class="tag-format">Bolsa 1.100 ml</span></div>
+          <div class="prod-meta">SKU: ALQ-ENT-001<span class="dot">•</span>Precio: <span class="price">$4.300 COP</span></div>
+        </div>
+        <div class="prod-side">
+          <div class="stock-badge">
+            <span class="stock-pill pill-warn">2 unidades</span>
+            <div class="stock-note warn">Stock mínimo requerido</div>
+          </div>
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-more">⋮</button>
+        </div>
+      </div>
+
+      <div class="prod-card" data-name="leche alquería deslactosada lácteos alq-des-002">
+        <div class="prod-icon" style="background:#dbeafe;color:#1d4ed8;">
+          <small>LÁCTEOS</small>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 2.5h7L18 6v14a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V6l2.5-3.5z"/><path d="M6 6.5h12"/><path d="M9.5 2.5 8 6M14.5 2.5 16 6"/><path d="M9 11h6"/></svg>
+        </div>
+        <div class="prod-info">
+          <div class="prod-title"><b>Leche Alquería deslactosada</b><span class="tag-format">Bolsa 1.100 ml</span></div>
+          <div class="prod-meta">SKU: ALQ-DES-002<span class="dot">•</span>Precio: <span class="price">$4.600 COP</span></div>
+        </div>
+        <div class="prod-side">
+          <div class="stock-badge">
+            <span class="stock-pill pill-warn">3 unidades</span>
+            <div class="stock-note warn">Próximo a agotar</div>
+          </div>
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-more">⋮</button>
+        </div>
+      </div>
+
+      <div class="prod-card out" data-name="leche colanta lácteos col-ent-003">
+        <div class="prod-icon" style="background:#dcfce7;color:#15803d;">
+          <small>LÁCTEOS</small>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 2.5h7L18 6v14a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V6l2.5-3.5z"/><path d="M6 6.5h12"/><path d="M9.5 2.5 8 6M14.5 2.5 16 6"/><path d="M9 11h6"/></svg>
+        </div>
+        <div class="prod-info">
+          <div class="prod-title"><b>Leche Colanta</b><span class="tag-format">Tetrapak 1.000 ml</span><span class="tag-out">AGOTADO</span></div>
+          <div class="prod-meta">SKU: COL-ENT-003<span class="dot">•</span>Precio: <span class="price" style="color:var(--red);">$3.950 COP</span></div>
+        </div>
+        <div class="prod-side">
+          <div class="stock-badge">
+            <span class="stock-pill pill-out">0 unidades</span>
+            <div class="stock-note">Se agotó esta semana en tienda</div>
+          </div>
+          <button class="btn-stock">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+            Pedir Stock
+          </button>
+          <button class="btn-edit">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+            Editar
+          </button>
+          <button class="btn-more">⋮</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="empty" id="empty">
+      <div class="ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <b>Busca un producto para ver resultados</b>
+      <span>Escribe por nombre, SKU o categoría — por ejemplo: <b style="color:var(--teal);">leche</b></span>
+    </div>
+
+    <div class="page-foot">
+      <span id="foot-count">Mostrando 3 de 3 productos para la búsqueda activa</span>
+      <span class="foot-note"><span class="sync"></span>Las existencias se sincronizan con las cajas POS cada 15 segundos</span>
+    </div>
+  </div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  const input = document.getElementById('prod-search');
+  const list = document.getElementById('prod-list');
+  const empty = document.getElementById('empty');
+  const chip = document.getElementById('chip');
+  const chipQ = document.getElementById('chip-q');
+  const count = document.getElementById('count');
+  const foot = document.getElementById('foot-count');
+
+  function apply() {
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      chip.style.display = 'none';
+      list.style.display = 'none';
+      empty.style.display = 'flex';
+      count.textContent = '';
+      foot.textContent = 'Escribe en el buscador para consultar el inventario';
+      return;
+    }
+    chip.style.display = 'inline-flex';
+    chipQ.textContent = `'${input.value.trim()}'`;
+    list.style.display = 'flex';
+    empty.style.display = 'none';
+    let n = 0;
+    document.querySelectorAll('.prod-card').forEach(c => {
+      const hit = c.textContent.toLowerCase().includes(q) || (c.dataset.name || '').includes(q);
+      c.style.display = hit ? '' : 'none';
+      if (hit) n++;
+    });
+    count.textContent = n + (n === 1 ? ' resultado coincidente' : ' resultados coincidentes');
+    foot.textContent = `Mostrando ${n} de 3 productos para la búsqueda activa`;
+    if (n === 0) { empty.style.display = 'flex'; list.style.display = 'none';
+      empty.querySelector('b').textContent = `Sin resultados para "${input.value.trim()}"`;
+      empty.querySelector('span').innerHTML = 'Revisa la ortografía o busca por SKU o categoría';
+    } else {
+      empty.querySelector('b').textContent = 'Busca un producto para ver resultados';
+    }
+  }
+  input.addEventListener('input', apply);
+  document.getElementById('chip-x').addEventListener('click', () => { input.value = ''; apply(); input.focus(); });
+
+  // Ctrl + F enfoca el buscador
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); input.focus(); }
+  });
+
+  document.getElementById('btn-add').addEventListener('click', () => input.focus());
+  apply();
+</script>
+</body>
+</html>

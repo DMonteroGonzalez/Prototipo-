@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Venta — Reporte de Salidas de Inventario</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: REPORTE DE SALIDAS ============ */
+  .nav-wrap.open .submenu{max-height:150px;}
+  .sub-item.active{color:#5eead4;background:#16414a;font-weight:600;}
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .crumb{font-size:9.5px;letter-spacing:1.8px;color:var(--teal);font-weight:700;margin-bottom:5px;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .page-head h1{font-size:19px;font-weight:700;letter-spacing:-.2px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .head-actions{display:flex;gap:10px;align-items:stretch;}
+  .btn-export{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:0 15px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:var(--font);transition:.15s;height:44px;}
+  .btn-export:hover{border-color:var(--teal);color:var(--teal);}
+  .date-space{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 14px;text-align:right;height:44px;display:flex;flex-direction:column;justify-content:center;}
+  .date-space span{font-size:8px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .date-space b{font-size:11px;display:flex;align-items:center;gap:6px;}
+
+  .filter-row{display:flex;align-items:center;gap:14px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text);}
+  .date-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 12px;min-width:150px;}
+  .date-box > span{display:block;font-size:8px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .date-box input{border:none;outline:none;font-family:var(--font);font-weight:700;font-size:12px;color:var(--text);background:transparent;width:100%;color-scheme:light;}
+  .btn-filter{display:flex;align-items:center;gap:8px;background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:.15s;margin-left:auto;}
+  .btn-filter:hover{background:#0f2230;}
+  .btn-filter.flash{background:var(--teal);}
+
+  .kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .kpi-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+  .kpi-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .kpi-num{width:34px;height:34px;border-radius:9px;background:#fef08a;color:#1e293b;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .kpi-tag{font-size:9px;font-weight:700;letter-spacing:1.2px;border-radius:5px;padding:3px 8px;}
+  .tag-consumo{background:var(--amber-bg);color:var(--amber);}
+  .tag-devol{background:var(--teal-soft);color:var(--teal);}
+  .kpi-top svg{margin-left:auto;}
+  .kpi-card p{font-size:11.5px;color:#334155;line-height:1.5;}
+  .kpi-foot{font-size:10px;margin-top:10px;display:flex;align-items:center;gap:5px;}
+  .kpi-foot.up{color:#0d9488;font-weight:600;}
+  .kpi-foot.ok{color:var(--teal);font-weight:600;}
+
+  .chart-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px;}
+  .chart-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+  .chart-title i{width:9px;height:9px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .chart-card .card-sub{font-size:10.5px;color:var(--muted-2);margin:2px 0 6px 17px;}
+  .chart-legend{display:flex;gap:18px;font-size:10.5px;color:var(--muted);margin:4px 0 2px 17px;align-items:center;flex-wrap:wrap;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:0;}
+  .legend-val{background:#f1f5f9;color:#334155;font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;margin-left:5px;}
+  #chart{width:100%;height:250px;}
+  .bar{transition:opacity .15s;}
+  .bar:hover{opacity:.75;}
+  .chart-wrap{position:relative;}
+  .tooltip{position:fixed;pointer-events:none;background:#0f172a;color:#fff;font-size:11px;padding:6px 9px;border-radius:7px;opacity:0;transition:opacity .12s;z-index:50;white-space:nowrap;}
+  .peak-tip{position:absolute;background:#0f172a;color:#fff;border-radius:10px;padding:10px 13px;font-size:10px;z-index:10;width:190px;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .peak-tip .pt-title{font-weight:700;font-size:10.5px;margin-bottom:7px;}
+  .peak-tip .pt-title span{color:#5eead4;font-weight:600;}
+  .peak-tip .pt-row{display:flex;align-items:center;gap:6px;padding:2px 0;color:#cbd5e1;}
+  .peak-tip .pt-row b{margin-left:auto;color:#fff;}
+  .pt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .pt-line{position:absolute;width:0;border-left:2px dotted #64748b;z-index:9;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 4px 4px;font-size:10.5px;color:var(--muted);border-top:1px solid #f1f5f9;flex-wrap:wrap;}
+  .foot-total{display:flex;align-items:center;gap:7px;}
+  .foot-total b{color:var(--text);}
+  .foot-total .ft-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sidebar);color:#fff;font-size:12px;font-weight:600;padding:11px 20px;border-radius:10px;transition:transform .25s;z-index:99;display:flex;align-items:center;gap:8px;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="crumb">MÓDULO DE INVENTARIO</div>
+    <div class="page-head">
+      <div>
+        <h1>Reporte de Salidas de Inventario</h1>
+        <div class="sub">Cantidad de salidas por tipo y fecha registradas en el almacén</div>
+      </div>
+      <div class="head-actions">
+        <button class="btn-export" id="btn-export">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Exportar PDF
+        </button>
+        <div class="date-space">
+          <span>ESPACIO DE FECHA</span>
+          <b>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            27 de septiembre de 2026
+          </b>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <span class="filter-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+        Rango de consulta:
+      </span>
+      <div class="date-box"><span>DESDE</span><input type="date" value="2024-10-01"></div>
+      <div class="date-box"><span>HASTA</span><input type="date" value="2024-10-24"></div>
+      <button class="btn-filter" id="btn-filter">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+        Filtrar
+      </button>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-num">15</span>
+          <span class="kpi-tag tag-consumo">CONSUMO INTERNO</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+        </div>
+        <p>Productos han dejado el inventario por consumo interno en los últimos 30 días</p>
+        <div class="kpi-foot up">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          +3,2% <span style="color:#94a3b8;font-weight:500;">vs. período anterior (Uso en tienda/merma)</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-num">30</span>
+          <span class="kpi-tag tag-devol">DEVOLUCIONES</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+        </div>
+        <p>Productos han dejado el inventario por devoluciones en los últimos 30 días</p>
+        <div class="kpi-foot ok">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>
+          100% <span style="color:#94a3b8;font-weight:500;">Reingresados o dados de baja formalmente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><i></i>Cantidad de salidas por tipo y fecha</div>
+      <div class="card-sub">Visualización cronológica discriminada por Devoluciones y Consumo Interno</div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#f59e0b;"></span>Consumo Interno<span class="legend-val">15 u.</span></span>
+        <span><span class="legend-dot" style="background:#0f766e;"></span>Devoluciones<span class="legend-val">30 u.</span></span>
+      </div>
+      <div class="chart-wrap" id="chart-wrap">
+        <svg id="chart" viewBox="0 0 660 250" preserveAspectRatio="none"></svg>
+        <div class="peak-tip" id="peak-tip">
+          <div class="pt-title">18 de Octubre, 2024 · <span>Pico de Salidas</span></div>
+          <div class="pt-row"><span class="pt-dot" style="background:#0f766e;"></span>Devoluciones:<b>12 unid.</b></div>
+          <div class="pt-row"><span class="pt-dot" style="background:#f59e0b;"></span>Consumo Interno:<b>5 unid.</b></div>
+        </div>
+        <div class="pt-line" id="pt-line"></div>
+      </div>
+    </div>
+
+    <div class="page-foot">
+      <span class="foot-total"><span class="ft-dot"></span>Total de salidas conciliadas en este período: <b>45 productos</b> (15 Consumo Interno + 30 Devoluciones)</span>
+      <span>Última sincronización de stock: &nbsp;<b style="color:var(--text);" id="sync-time">Hoy, 10:45 AM</b></span>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ===== Gráfico: salidas por tipo y fecha (Consumo Interno / Devoluciones) =====
+  const data = [
+    {m:'01 Oct', a:2, d:3}, {m:'06 Oct', a:2, d:4}, {m:'12 Oct', a:3, d:5},
+    {m:'18 Oct (Pico)', a:5, d:12}, {m:'21 Oct', a:2, d:3}, {m:'24 Oct', a:1, d:3},
+  ];
+  const svg = document.getElementById('chart');
+  const W = 660, H = 250, padL = 42, padB = 30, padT = 16;
+  const max = 35;
+  const innerW = W - padL - 16, innerH = H - padT - padB;
+  const groupW = innerW / data.length, barW = Math.min(15, groupW * 0.2);
+  const y = v => padT + innerH - (v / max) * innerH;
+  let out = '';
+  [0, 5, 15, 25, 35].forEach(v => {
+    out += `<line x1="${padL}" y1="${y(v)}" x2="${W-16}" y2="${y(v)}" stroke="#eef1f4" stroke-width="1"/>`;
+    out += `<text x="${padL-9}" y="${y(v)+3.5}" text-anchor="end" font-size="10" fill="#94a3b8">${v}</text>`;
+  });
+  data.forEach((d, i) => {
+    const gx = padL + i * groupW + groupW / 2;
+    out += `<rect class="bar" data-m="${d.m}" data-t="Consumo Interno" data-val="${d.a}" x="${gx-barW-3}" y="${y(d.a)}" width="${barW}" height="${padT+innerH-y(d.a)}" rx="3" fill="#f59e0b"${i===3?' id="peak-a"':''}/>`;
+    out += `<rect class="bar" data-m="${d.m}" data-t="Devoluciones" data-val="${d.d}" x="${gx+3}" y="${y(d.d)}" width="${barW}" height="${padT+innerH-y(d.d)}" rx="3" fill="#0f766e"${i===3?' id="peak-d"':''}/>`;
+    out += `<text x="${gx}" y="${H-9}" text-anchor="middle" font-size="9.5" fill="#64748b">${d.m}</text>`;
+  });
+  svg.innerHTML = out;
+
+  // Tooltip flotante al pasar el cursor sobre las barras
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip';
+  document.body.appendChild(tooltip);
+  svg.addEventListener('mousemove', e => {
+    const bar = e.target.closest('.bar');
+    if (!bar) { tooltip.style.opacity = 0; return; }
+    tooltip.innerHTML = `<b>${bar.dataset.m}</b> · ${bar.dataset.t}: ${bar.dataset.val} unid.`;
+    tooltip.style.opacity = 1;
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top = (e.clientY - 34) + 'px';
+  });
+  svg.addEventListener('mouseleave', () => tooltip.style.opacity = 0);
+
+  // Tarjeta de tooltip fija sobre el pico (18 Oct)
+  function placePeak() {
+    const wrap = document.getElementById('chart-wrap');
+    const bar = document.getElementById('peak-d');
+    const tip = document.getElementById('peak-tip');
+    const line = document.getElementById('pt-line');
+    const wr = wrap.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    const tipW = 190, gap = 34;
+    let left = br.left - wr.left + br.width/2 - tipW/2;
+    left = Math.max(4, Math.min(left, wr.width - tipW - 4));
+    const tipH = tip.offsetHeight || 74;
+    tip.style.left = left + 'px';
+    tip.style.top = (br.top - wr.top - tipH - gap) + 'px';
+    line.style.left = (br.left - wr.left + br.width/2 - 1) + 'px';
+    line.style.top = (br.top - wr.top - gap) + 'px';
+    line.style.height = gap + 'px';
+  }
+  window.addEventListener('load', placePeak);
+  window.addEventListener('resize', placePeak);
+  setTimeout(placePeak, 300);
+
+  // Botón Filtrar: feedback visual + actualiza hora de sincronización
+  document.getElementById('btn-filter').addEventListener('click', function() {
+    this.classList.add('flash');
+    setTimeout(() => this.classList.remove('flash'), 500);
+    const t = new Date();
+    const hh = t.getHours(), mm = String(t.getMinutes()).padStart(2,'0');
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    document.getElementById('sync-time').textContent =
+      `Hoy, ${((hh+11)%12)+1}:${mm} ${ampm}`;
+    showToast('Rango de fechas aplicado a la vista');
+  });
+
+  // Exportar PDF: toast informativo (prototipo no funcional)
+  document.getElementById('btn-export').addEventListener('click', () =>
+    showToast('La exportación está deshabilitada en el prototipo'));
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg> ${msg}`;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>

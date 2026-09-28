@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Venta — Reporte de Facturas</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: REPORTE DE FACTURAS (VENTAS) ============ */
+  
+  /* Refuerzo: submódulos 100% ocultos salvo hover */
+  .submenu{visibility:hidden;transition:max-height .25s ease, visibility 0s linear .25s;}
+  .nav-wrap:hover .submenu,.nav-wrap:focus-within .submenu{visibility:visible;transition:max-height .25s ease;}
+
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .crumb{font-size:9.5px;letter-spacing:1.8px;color:var(--teal);font-weight:700;margin-bottom:5px;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .page-head h1{font-size:19px;font-weight:700;letter-spacing:-.2px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;max-width:520px;}
+  .head-actions{display:flex;gap:10px;align-items:stretch;}
+  .btn-export{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:0 15px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:var(--font);transition:.15s;height:44px;}
+  .btn-export:hover{border-color:var(--teal);color:var(--teal);}
+  .date-space{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 14px;text-align:right;height:44px;display:flex;flex-direction:column;justify-content:center;}
+  .date-space span{font-size:8px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .date-space b{font-size:11px;display:flex;align-items:center;gap:6px;}
+
+  .rep-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+  .rep-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
+  .rep-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+  .rep-title i{width:9px;height:9px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .rep-sub{font-size:10.5px;color:var(--muted-2);margin:2px 0 0 17px;max-width:420px;}
+  .rep-filters{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+  .date-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 12px;min-width:140px;}
+  .date-box > span{display:block;font-size:8px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .date-box input{border:none;outline:none;font-family:var(--font);font-weight:700;font-size:12px;color:var(--text);background:transparent;width:100%;color-scheme:light;}
+  .btn-filter{display:flex;align-items:center;gap:8px;background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:.15s;}
+  .btn-filter:hover{background:#0f2230;}
+  .btn-filter.flash{background:var(--teal);}
+
+  .mini-stats{display:flex;align-items:center;gap:26px;flex-wrap:wrap;padding:10px 4px 4px 14px;}
+  .ms-item{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);}
+  .ms-item b{font-size:12px;color:var(--text);white-space:nowrap;}
+  .ms-item .boxed{border:1px solid var(--border);border-radius:8px;padding:6px 12px;background:#fbfcfd;font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;}
+  .ms-item .boxed small{display:block;font-size:9px;color:var(--muted-2);font-weight:600;}
+  .ms-item .ok{color:#0d9488;font-weight:800;font-size:13px;}
+  .ms-sep{width:1px;height:26px;background:var(--border);}
+
+  .chart-legend{display:flex;gap:18px;font-size:10.5px;color:var(--muted);margin:10px 0 2px 17px;align-items:center;flex-wrap:wrap;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:0;}
+  .legend-val{background:#f1f5f9;color:#334155;font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;margin-left:5px;}
+  .chart-wrap{position:relative;}
+  #chart{width:100%;height:250px;}
+  .bar{transition:opacity .15s;}
+  .bar:hover{opacity:.75;}
+  .tooltip{position:fixed;pointer-events:none;background:#0f172a;color:#fff;font-size:11px;padding:6px 9px;border-radius:7px;opacity:0;transition:opacity .12s;z-index:50;white-space:nowrap;}
+  .peak-tip{position:absolute;background:#0f172a;color:#fff;border-radius:10px;padding:10px 13px;font-size:10px;z-index:10;width:210px;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+  .peak-tip .pt-title{font-weight:700;font-size:10.5px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .peak-tip .pt-title .pt-tag{background:#f59e0b;color:#1e293b;font-size:7.5px;font-weight:800;letter-spacing:.6px;border-radius:4px;padding:2px 6px;white-space:nowrap;}
+  .peak-tip .pt-row{display:flex;align-items:center;gap:6px;padding:2px 0;color:#cbd5e1;}
+  .peak-tip .pt-row b{margin-left:auto;color:#fff;}
+  .peak-tip .pt-total{border-top:1px solid #334155;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;color:#fff;font-weight:700;}
+  .pt-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .pt-line{position:absolute;width:0;border-left:2px dotted #64748b;z-index:9;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 4px 4px;font-size:10.5px;color:var(--muted);border-top:1px solid #f1f5f9;flex-wrap:wrap;}
+  .foot-total{display:flex;align-items:center;gap:7px;}
+  .foot-total b{color:var(--text);}
+  .foot-total .ft-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sidebar);color:#fff;font-size:12px;font-weight:600;padding:11px 20px;border-radius:10px;transition:transform .25s;z-index:99;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="crumb">MÓDULO DE FACTURACIÓN</div>
+    <div class="page-head">
+      <div>
+        <h1>Reporte de Facturas</h1>
+        <div class="sub">Consolidado analítico de facturación emitida y facturas de compra recibidas</div>
+      </div>
+      <div class="head-actions">
+        <button class="btn-export" id="btn-export">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Exportar PDF
+        </button>
+        <div class="date-space">
+          <span>ESPACIO DE FECHA</span>
+          <b>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            27 de septiembre de 2026
+          </b>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CARD 1: FACTURAS EMITIDAS ===== -->
+    <div class="rep-card">
+      <div class="rep-head">
+        <div>
+          <div class="rep-title"><i></i>Total de facturas ingresadas</div>
+          <div class="rep-sub">Muestra en gráfico, total de facturas ingresadas al sistema POS</div>
+        </div>
+        <div class="rep-filters">
+          <div class="date-box"><span>DESDE</span><input type="date" value="2024-10-01"></div>
+          <div class="date-box"><span>HASTA</span><input type="date" value="2024-10-24"></div>
+          <button class="btn-filter">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+            Filtrar
+          </button>
+        </div>
+      </div>
+
+      <div class="mini-stats">
+        <div class="ms-item">Facturas emitidas período: <b>148 unid.</b></div>
+        <div class="ms-sep"></div>
+        <div class="ms-item">Promedio diario procesado: <span class="boxed">6.2<small>facturas/día</small></span></div>
+        <div class="ms-sep"></div>
+        <div class="ms-item">Tasa de aprobación directa: <span class="ok">99.4%</span></div>
+      </div>
+
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#f59e0b;"></span>Facturación Manual:<span class="legend-val">38 u.</span></span>
+        <span><span class="legend-dot" style="background:#16303e;"></span>Facturación Electrónica POS:<span class="legend-val">110 u.</span></span>
+      </div>
+
+      <div class="chart-wrap" id="chart-wrap">
+        <svg id="chart" viewBox="0 0 660 250" preserveAspectRatio="none"></svg>
+        <div class="peak-tip" id="peak-tip">
+          <div class="pt-title">18 de Octubre, 2024 <span class="pt-tag">PICO DE FACTURACIÓN</span></div>
+          <div class="pt-row"><span class="pt-dot" style="background:#16303e;"></span>Electrónica POS:<b>34 unid.</b></div>
+          <div class="pt-row"><span class="pt-dot" style="background:#f59e0b;"></span>Manual:<b>14 unid.</b></div>
+          <div class="pt-total"><span>Total del día:</span><span>48 facturas</span></div>
+        </div>
+        <div class="pt-line" id="pt-line"></div>
+      </div>
+
+      <div class="page-foot">
+        <span class="foot-total"><span class="ft-dot"></span>Total de facturas conciliadas en este período: <b>148 registros</b> (110 Electrónicas + 38 Manuales)</span>
+        <span>Última sincronización con DIAN: &nbsp;<b style="color:var(--text);">Hoy, 10:45 AM</b></span>
+      </div>
+    </div>
+
+    <!-- ===== CARD 2: FACTURAS DE COMPRA ===== -->
+    <div class="rep-card">
+      <div class="rep-head">
+        <div>
+          <div class="rep-title"><i></i>Total facturas de compra</div>
+          <div class="rep-sub">Muestra en gráfico, total facturas de compra recibidas y registradas de proveedores</div>
+        </div>
+        <div class="rep-filters">
+          <div class="date-box"><span>DESDE</span><input type="date" value="2024-10-01"></div>
+          <div class="date-box"><span>HASTA</span><input type="date" value="2024-10-24"></div>
+          <button class="btn-filter">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+            Filtrar
+          </button>
+        </div>
+      </div>
+
+      <div class="mini-stats" style="align-items:flex-start;gap:60px;">
+        <div>
+          <div style="font-size:10.5px;color:var(--muted);">Facturas de compra recibidas:</div>
+          <div style="font-size:19px;font-weight:800;color:var(--text);margin-top:2px;">96</div>
+        </div>
+        <div>
+          <div style="font-size:10.5px;color:var(--muted);">Monto consolidado</div>
+          <div style="font-size:19px;font-weight:800;color:var(--text);margin-top:2px;">$ 8,420,000</div>
+        </div>
+        <div>
+          <div style="font-size:10.5px;color:var(--muted);">Proveedores únicos procesados:</div>
+          <div style="font-size:19px;font-weight:800;color:var(--text);margin-top:2px;">18 <span style="font-size:12px;font-weight:700;color:var(--muted);">empresas</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ===== Gráfico: facturas ingresadas (Manual / Electrónica POS) =====
+  const data = [
+    {m:'01 Oct', a:5, d:14}, {m:'06 Oct', a:6, d:16}, {m:'12 Oct', a:8, d:19},
+    {m:'18 Oct (Pico)', a:14, d:34}, {m:'21 Oct', a:3, d:12}, {m:'24 Oct', a:2, d:15},
+  ];
+  const svg = document.getElementById('chart');
+  const W = 660, H = 250, padL = 42, padB = 30, padT = 14;
+  const max = 40;
+  const innerW = W - padL - 16, innerH = H - padT - padB;
+  const groupW = innerW / data.length, barW = Math.min(15, groupW * 0.2);
+  const y = v => padT + innerH - (v / max) * innerH;
+  let out = '';
+  [0, 10, 20, 30, 40].forEach(v => {
+    out += `<line x1="${padL}" y1="${y(v)}" x2="${W-16}" y2="${y(v)}" stroke="#eef1f4" stroke-width="1"/>`;
+    out += `<text x="${padL-9}" y="${y(v)+3.5}" text-anchor="end" font-size="10" fill="#94a3b8">${v}</text>`;
+  });
+  data.forEach((d, i) => {
+    const gx = padL + i * groupW + groupW / 2;
+    out += `<rect class="bar" data-m="${d.m}" data-t="Facturación Manual" data-val="${d.a}" x="${gx-barW-3}" y="${y(d.a)}" width="${barW}" height="${padT+innerH-y(d.a)}" rx="3" fill="#f59e0b"${i===3?' id="peak-a"':''}/>`;
+    out += `<rect class="bar" data-m="${d.m}" data-t="Facturación Electrónica POS" data-val="${d.d}" x="${gx+3}" y="${y(d.d)}" width="${barW}" height="${padT+innerH-y(d.d)}" rx="3" fill="#16303e"${i===3?' id="peak-d"':''}/>`;
+    out += `<text x="${gx}" y="${H-9}" text-anchor="middle" font-size="9.5" fill="#64748b">${d.m}</text>`;
+  });
+  svg.innerHTML = out;
+
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip';
+  document.body.appendChild(tooltip);
+  svg.addEventListener('mousemove', e => {
+    const bar = e.target.closest('.bar');
+    if (!bar) { tooltip.style.opacity = 0; return; }
+    tooltip.innerHTML = `<b>${bar.dataset.m}</b> · ${bar.dataset.t}: ${bar.dataset.val} u.`;
+    tooltip.style.opacity = 1;
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top = (e.clientY - 34) + 'px';
+  });
+  svg.addEventListener('mouseleave', () => tooltip.style.opacity = 0);
+
+  function placePeak() {
+    const wrap = document.getElementById('chart-wrap');
+    const bar = document.getElementById('peak-d');
+    const tip = document.getElementById('peak-tip');
+    const line = document.getElementById('pt-line');
+    const wr = wrap.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    const tipW = 210, gap = 30;
+    let left = br.left - wr.left + br.width/2 - tipW/2;
+    left = Math.max(4, Math.min(left, wr.width - tipW - 4));
+    tip.style.left = left + 'px';
+    tip.style.top = (br.top - wr.top - (tip.offsetHeight||86) - gap) + 'px';
+    line.style.left = (br.left - wr.left + br.width/2 - 1) + 'px';
+    line.style.top = (br.top - wr.top - gap) + 'px';
+    line.style.height = gap + 'px';
+  }
+  window.addEventListener('load', placePeak);
+  window.addEventListener('resize', placePeak);
+  setTimeout(placePeak, 300);
+
+  // Botones Filtrar: feedback + hora de sincronización
+  document.querySelectorAll('.btn-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.add('flash');
+      setTimeout(() => btn.classList.remove('flash'), 500);
+      showToast('Rango de fechas aplicado a la vista');
+    });
+  });
+
+  document.getElementById('btn-export').addEventListener('click', () =>
+    showToast('La exportación está deshabilitada en el prototipo'));
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>

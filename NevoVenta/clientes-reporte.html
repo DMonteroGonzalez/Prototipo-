@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Venta — Reporte de Clientes</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: REPORTE DE CLIENTES ============ */
+  .submenu{visibility:hidden;transition:max-height .25s ease, visibility 0s linear .25s;}
+  .nav-wrap:hover .submenu,.nav-wrap:focus-within .submenu{visibility:visible;transition:max-height .25s ease;}
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;display:flex;flex-direction:column;}
+  .crumb{font-size:9.5px;letter-spacing:1.8px;color:var(--teal);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .crumb .sep{color:var(--muted-2);font-weight:400;letter-spacing:0;}
+  .crumb .mod{color:#94a3b8;letter-spacing:.4px;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .page-head h1{font-size:19px;font-weight:700;letter-spacing:-.2px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .head-actions{display:flex;gap:10px;align-items:stretch;}
+  .date-space{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 14px;text-align:right;height:44px;display:flex;flex-direction:column;justify-content:center;}
+  .date-space span{font-size:8px;letter-spacing:1.5px;color:var(--muted-2);font-weight:700;}
+  .date-space b{font-size:11px;display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+  .btn-new{background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--font);transition:.15s;}
+  .btn-new:hover{background:#0f2230;}
+
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 17px;}
+  .kpi-top{display:flex;justify-content:space-between;align-items:center;}
+  .kpi-label{font-size:9.5px;letter-spacing:1.2px;color:var(--muted);font-weight:700;}
+  .kpi-value{font-size:22px;font-weight:800;margin-top:6px;letter-spacing:-.3px;}
+  .kpi-value .up{font-size:10px;color:#0d9488;font-weight:700;vertical-align:middle;margin-left:6px;}
+  .kpi-name{font-size:13.5px;font-weight:800;margin-top:6px;}
+  .kpi-boxed{display:inline-block;border:1px solid var(--border);background:#fbfcfd;border-radius:7px;padding:4px 10px;font-size:12px;font-weight:800;margin-top:5px;}
+  .kpi-sub{font-size:9.5px;color:var(--muted-2);margin-top:5px;}
+  .kpi-sub b{color:var(--text);}
+
+  .search-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+  .search-big{flex:1;min-width:280px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:11px 16px;color:var(--muted-2);}
+  .search-big input{border:none;outline:none;font-family:var(--font);font-size:13px;flex:1;background:transparent;color:var(--text);}
+  .sort-label{font-size:10.5px;color:var(--muted);white-space:nowrap;}
+  .sort-btn{background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 16px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:var(--font);transition:.15s;}
+  .sort-btn.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .sort-btn:hover:not(.active){border-color:var(--teal);color:var(--teal);}
+  .sort-ic{width:36px;height:36px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .sort-ic:hover{border-color:var(--teal);color:var(--teal);}
+
+  .table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{background:var(--sidebar);color:#cbd5e1;font-size:9.5px;letter-spacing:1.2px;font-weight:700;text-align:left;padding:12px 16px;cursor:pointer;user-select:none;white-space:nowrap;}
+  thead th:hover{color:#5eead4;}
+  thead th .arr{color:#5eead4;margin-left:4px;font-size:8px;}
+  tbody td{padding:13px 16px;border-bottom:1px solid #f1f5f9;font-size:11.5px;vertical-align:middle;}
+  tbody tr{transition:background .12s;}
+  tbody tr:hover{background:#f8fafc;}
+  tbody tr:last-child td{border-bottom:none;}
+  .cell-client{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cell-client b{display:block;font-size:12px;}
+  .tier{font-size:9.5px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:1px;}
+  .tier i{width:6px;height:6px;border-radius:50%;display:inline-block;}
+  .tier-plat i{background:#0d9488;}
+  .tier-oro i{background:#d97706;}
+  .tier-frec i{background:#64748b;}
+  .cc-num{color:var(--text);font-weight:600;}
+  .num-pill{display:inline-block;border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;background:#fbfcfd;}
+  .amount{font-weight:800;font-size:12.5px;}
+  .amount small{font-size:9px;color:var(--muted-2);font-weight:600;margin-left:3px;}
+  .row-actions{display:flex;justify-content:flex-end;}
+  .icon-btn2{width:28px;height:28px;border:1px solid var(--border);background:#fff;border-radius:7px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .icon-btn2:hover{border-color:#fca5a5;color:var(--red);background:#fef2f2;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 4px 4px;font-size:10.5px;color:var(--muted);flex-wrap:wrap;}
+  .pagination{display:flex;align-items:center;gap:6px;}
+  .pg{border:1px solid var(--border);background:#fff;border-radius:7px;min-width:28px;height:28px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);padding:0 8px;}
+  .pg:hover{border-color:var(--teal);color:var(--teal);}
+  .pg.active{background:var(--sidebar);border-color:var(--sidebar);color:#fff;}
+  .pg.dots{border:none;background:none;cursor:default;}
+
+  .app-footer{text-align:center;font-size:10px;color:var(--muted-2);padding:14px 0 4px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+  .app-footer .dot{width:3px;height:3px;border-radius:50%;background:#cbd5e1;}
+  .app-footer .ssl{display:flex;align-items:center;gap:4px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sidebar);color:#fff;font-size:12px;font-weight:600;padding:11px 20px;border-radius:10px;transition:transform .25s;z-index:99;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="crumb">ANALÍTICA DE CLIENTES <span class="sep">•</span> <span class="mod">Módulo Fidelización &amp; Ventas</span></div>
+    <div class="page-head">
+      <div>
+        <h1>Reporte de Clientes</h1>
+        <div class="sub">Consolidado de compras recurrentes y clientes con mayor facturación acumulada</div>
+      </div>
+      <div class="head-actions">
+        <div class="date-space">
+          <span>ESPACIO DE FECHA</span>
+          <b>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            27 Sep, 2026 - Rango Total
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.6" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </b>
+        </div>
+        <button class="btn-new" id="btn-dl">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Descargar Reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">TOTAL CLIENTES CON COMPRAS</span>
+          <span style="color:var(--teal);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.3"/><path d="M2.5 20c0-3.3 2.9-5.4 6.5-5.4s6.5 2.1 6.5 5.4"/><path d="m16 8 2 2 4-4"/></svg></span>
+        </div>
+        <div class="kpi-value">1,428 <span class="up">↗ +12% mes</span></div>
+        <div class="kpi-sub">Clientes con transacciones verificadas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">CLIENTE TOP FACTURACIÓN</span>
+          <span style="color:#d97706;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4.5 3.5L12 4l4.5 7.5L21 8l-1.8 10H4.8L3 8z"/></svg></span>
+        </div>
+        <div class="kpi-name">Roblete Guiliman</div>
+        <span class="kpi-boxed">$527,502 COP</span>
+      </div>
+      <div class="kpi">
+        <div class="kpi-top">
+          <span class="kpi-label">PROMEDIO DE FRECUENCIA</span>
+          <span style="color:#15803d;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+        </div>
+        <div class="kpi-value">24 <span style="font-size:12px;font-weight:600;color:var(--muted);">compras</span> <span style="font-size:10px;font-weight:600;color:var(--muted-2);">/ cliente recurrente</span></div>
+        <div class="kpi-sub">Basado en clientes del top activo</div>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <div class="search-big">
+        <input type="text" id="cli-search" placeholder="Buscar por nombre, documento C.C o volumen..." autocomplete="off">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <span class="sort-label">Filtrar por:</span>
+      <button class="sort-btn active">Top Compradores</button>
+      <button class="sort-btn">Mayor Frecuencia</button>
+      <button class="sort-ic" title="Opciones de filtro">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="19" cy="18" r="2"/></svg>
+      </button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>NOMBRE <span class="arr">⇅</span></th>
+            <th>C.C</th>
+            <th>NUMERO DE COMPRAS <span class="arr">⇅</span></th>
+            <th>TOTAL EN COMPRAS <span class="arr">⇅</span></th>
+            <th style="text-align:right;">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody id="cli-tbody">
+          <tr>
+            <td><div class="cell-client"><span class="avatar" style="background:#0f766e;">RG</span><div><b>Roblete Guiliman</b><span class="tier tier-plat"><i></i>Cliente Platino</span></div></div></td>
+            <td class="cc-num">15879510</td>
+            <td><span class="num-pill">30</span></td>
+            <td class="amount">$527,502<small>COP</small></td>
+            <td><div class="row-actions"><button class="icon-btn2 act-del" title="Quitar del reporte"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-client"><span class="avatar" style="background:#7e22ce;">LJ</span><div><b>Lionel Jhonson</b><span class="tier tier-oro"><i></i>Cliente Oro</span></div></div></td>
+            <td class="cc-num">14557895</td>
+            <td><span class="num-pill">24</span></td>
+            <td class="amount">$458,365<small>COP</small></td>
+            <td><div class="row-actions"><button class="icon-btn2 act-del" title="Quitar del reporte"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-client"><span class="avatar" style="background:#d97706;">CV</span><div><b>Constantin Valdor</b><span class="tier tier-oro"><i></i>Cliente Oro</span></div></div></td>
+            <td class="cc-num">2548795</td>
+            <td><span class="num-pill">20</span></td>
+            <td class="amount">$412,000<small>COP</small></td>
+            <td><div class="row-actions"><button class="icon-btn2 act-del" title="Quitar del reporte"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-client"><span class="avatar" style="background:#1d4ed8;">LR</span><div><b>Leman Russ</b><span class="tier tier-frec"><i></i>Cliente Frecuente</span></div></div></td>
+            <td class="cc-num">18984521</td>
+            <td><span class="num-pill">18</span></td>
+            <td class="amount">$389,400<small>COP</small></td>
+            <td><div class="row-actions"><button class="icon-btn2 act-del" title="Quitar del reporte"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-client"><span class="avatar" style="background:#b91c1c;">RD</span><div><b>Rogal Dorn</b><span class="tier tier-frec"><i></i>Cliente Frecuente</span></div></div></td>
+            <td class="cc-num">19875412</td>
+            <td><span class="num-pill">16</span></td>
+            <td class="amount">$342,150<small>COP</small></td>
+            <td><div class="row-actions"><button class="icon-btn2 act-del" title="Quitar del reporte"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-foot">
+      <span id="foot-count">Mostrando 5 de 1,428 clientes registrados</span>
+      <div class="pagination">
+        <button class="pg">&lt; Anterior</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">3</button>
+        <button class="pg dots">...</button>
+        <button class="pg">286</button>
+        <button class="pg">Siguiente &gt;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-footer">
+    <span>© 2026 Nexo Venta POS. Todos los derechos reservados.</span>
+    <span class="dot"></span>
+    <span class="ssl"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Conexión encriptada SSL</span>
+    <span class="dot"></span>
+    <span>Soporte: pos-soporte@nexoventa.com</span>
+  </div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ===== Buscador: filtra la tabla del reporte en vivo =====
+  const input = document.getElementById('cli-search');
+  function apply() {
+    const q = input.value.trim().toLowerCase();
+    let n = 0;
+    document.querySelectorAll('#cli-tbody tr').forEach(r => {
+      const hit = r.textContent.toLowerCase().includes(q);
+      r.style.display = hit ? '' : 'none';
+      if (hit) n++;
+    });
+    document.getElementById('foot-count').textContent = q
+      ? `${n} resultados para "${input.value.trim()}" · de 1,428 clientes registrados`
+      : 'Mostrando 5 de 1,428 clientes registrados';
+  }
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); apply(); }
+  });
+
+  // Ordenar por: conmutación visual
+  document.querySelectorAll('.sort-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+  }));
+
+  // Acciones (prototipo no funcional)
+  document.querySelectorAll('.act-del').forEach(b => b.addEventListener('click', () => showToast('La eliminación está deshabilitada en el prototipo')));
+  document.querySelectorAll('.sort-ic, thead th').forEach(b => b.addEventListener('click', () => showToast('El ordenamiento es ilustrativo en el prototipo')));
+  document.getElementById('btn-dl').addEventListener('click', () => showToast('La descarga está deshabilitada en el prototipo'));
+  document.querySelectorAll('.pg:not(.dots)').forEach(p => p.addEventListener('click', () => showToast('La paginación es ilustrativa en el prototipo')));
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>

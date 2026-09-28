@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Venta — Facturas de Compra</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: FACTURAS DE VENTA ============ */
+  .submenu{visibility:hidden;transition:max-height .25s ease, visibility 0s linear .25s;}
+  .nav-wrap:hover .submenu,.nav-wrap:focus-within .submenu{visibility:visible;transition:max-height .25s ease;}
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .title-row{display:flex;align-items:center;gap:10px;}
+  .page-head h1{font-size:19px;font-weight:700;letter-spacing:-.2px;}
+  .badge-dian{background:#dcfce7;color:#15803d;font-size:9.5px;font-weight:700;border-radius:20px;padding:3px 10px;letter-spacing:.4px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .head-actions{display:flex;gap:10px;align-items:stretch;}
+  .date-box-sm{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 14px;text-align:right;}
+  .date-box-sm span{display:block;font-size:7.5px;letter-spacing:1.3px;color:var(--muted-2);font-weight:700;}
+  .date-box-sm b{font-size:11px;display:flex;align-items:center;gap:6px;}
+  .btn-new{background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--font);transition:.15s;}
+  .btn-new:hover{background:#0f2230;}
+
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .kpi-label{font-size:10px;color:var(--muted);font-weight:600;}
+  .kpi-value{font-size:17px;font-weight:800;margin-top:3px;letter-spacing:-.3px;}
+  .kpi-value small{font-size:10px;font-weight:600;color:var(--muted);}
+  .kpi-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  .search-big{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:11px 16px;color:var(--muted-2);margin-bottom:10px;}
+  .search-big input{border:none;outline:none;font-family:var(--font);font-size:13px;flex:1;background:transparent;color:var(--text);}
+  .filter-row{display:flex;align-items:center;gap:16px;font-size:11px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap;}
+  .f-chip{background:none;border:none;font-family:var(--font);font-size:11px;font-weight:700;color:var(--teal);cursor:pointer;padding:2px 2px;border-bottom:2px solid transparent;}
+  .f-chip.dim{color:var(--muted);font-weight:600;}
+  .f-chip:hover{color:var(--teal);}
+  .filter-hint{margin-left:auto;font-size:10px;color:var(--muted-2);}
+  .filter-hint .kbd{margin-left:4px;}
+
+  .inv-list{display:flex;flex-direction:column;gap:10px;flex:1;}
+  .inv-card{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 16px;transition:.15s;}
+  .inv-card:hover{border-color:#c3d4d2;box-shadow:0 1px 4px rgba(15,118,110,.07);}
+  .inv-ic{width:38px;height:38px;border-radius:10px;background:var(--teal-soft);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .inv-info{flex:1;min-width:0;}
+  .inv-row1{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .inv-row1 b{font-size:13px;}
+  .badge-emit{background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;border-radius:5px;padding:2px 7px;}
+  .inv-cufe{font-size:9.5px;color:var(--muted-2);font-family:monospace;}
+  .inv-row2{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .inv-row2 .dot{margin:0 7px;color:var(--muted-2);}
+  .inv-amount{text-align:right;flex-shrink:0;}
+  .inv-amount small{display:block;font-size:8.5px;letter-spacing:1px;color:var(--muted-2);font-weight:700;}
+  .inv-amount b{font-size:14.5px;}
+  .inv-actions{display:flex;gap:6px;flex-shrink:0;}
+  .icon-btn2{width:30px;height:30px;border:1px solid var(--border);background:#fff;border-radius:8px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .icon-btn2:hover{border-color:var(--teal);color:var(--teal);background:#f0fdfa;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 4px 4px;font-size:10.5px;color:var(--muted);border-top:1px solid #f1f5f9;margin-top:12px;flex-wrap:wrap;}
+  .pagination{display:flex;align-items:center;gap:6px;}
+  .pg{border:1px solid var(--border);background:#fff;border-radius:7px;min-width:28px;height:28px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);padding:0 8px;}
+  .pg:hover{border-color:var(--teal);color:var(--teal);}
+  .pg.active{background:var(--sidebar);border-color:var(--sidebar);color:#fff;}
+  .pg.dots{border:none;background:none;cursor:default;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sidebar);color:#fff;font-size:12px;font-weight:600;padding:11px 20px;border-radius:10px;transition:transform .25s;z-index:99;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  .badge-cred{background:var(--amber-bg);color:var(--amber);}
+  .chip-fill{background:var(--teal);color:#fff;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;font-family:var(--font);border:none;cursor:pointer;}
+  .f-chip2{background:none;border:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 10px;border-radius:20px;transition:.15s;}
+  .f-chip2:hover{background:#f1f5f9;color:var(--teal);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="page-head">
+      <div>
+        <div class="title-row">
+          <h1>Facturas de Compra</h1>
+          <span class="badge-dian">Recepción DIAN Activa</span>
+        </div>
+        <div class="sub">Consulta, radicación y descarga de facturas y órdenes de compra a proveedores.</div>
+      </div>
+      <div class="head-actions">
+        <div class="date-box-sm">
+          <span>FECHA DEL SISTEMA</span>
+          <b>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            27 Sep, 2026
+          </b>
+        </div>
+        <button class="btn-new" id="btn-new">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Registrar Compra
+        </button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">TOTAL COMPRAS DEL MES</div>
+          <div class="kpi-value">$ 8,420,000 <small>COP</small></div>
+        </div>
+        <div class="kpi-icon" style="background:#dcfce7;color:#15803d;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">FACTURAS RECIBIDAS</div>
+          <div class="kpi-value">4 facturas <small>período actual</small></div>
+        </div>
+        <div class="kpi-icon" style="background:#dbeafe;color:#1d4ed8;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">PROMEDIO POR COMPRA</div>
+          <div class="kpi-value">$ 2,105,000 <small>COP</small></div>
+        </div>
+        <div class="kpi-icon" style="background:#f3e8ff;color:#7e22ce;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-big">
+      <input type="text" id="inv-search" placeholder="Buscar por proveedor, N° de factura (#C-...), NIT o producto..." autocomplete="off">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </div>
+
+    <div class="filter-row">
+      <span style="font-weight:600;">Filtro rápido:</span>
+      <button class="chip-fill">Todas (4)</button>
+      <button class="f-chip2">Pagadas</button>
+      <button class="f-chip2">A crédito (30 días)</button>
+      <button class="f-chip2">Pendientes</button>
+      <span class="filter-hint">Presiona <span class="kbd">Enter</span> para buscar</span>
+    </div>
+
+    <div class="inv-list" id="inv-list">
+
+      <div class="inv-card">
+        <div class="inv-ic">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+        </div>
+        <div class="inv-info">
+          <div class="inv-row1"><b>#C-502</b><span class="badge-emit">Pagada</span><span class="inv-cufe">CUFE: c4a1...9b21</span></div>
+          <div class="inv-row2">Distribuidora Lácteos del Norte S.A.S.<span class="dot">•</span>NIT: 900.124.582-1<span class="dot">•</span>26 Sep, 2026 - 04:30 PM</div>
+        </div>
+        <div class="inv-amount"><small>MONTO TOTAL</small><b>$ 3,120,000</b></div>
+        <div class="inv-actions">
+          <button class="icon-btn2 act-dl" title="Descargar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+          <button class="icon-btn2 act-view" title="Ver"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+
+      <div class="inv-card">
+        <div class="inv-ic">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+        </div>
+        <div class="inv-info">
+          <div class="inv-row1"><b>#C-501</b><span class="badge-emit">Pagada</span><span class="inv-cufe">CUFE: c7d1...4e88</span></div>
+          <div class="inv-row2">Abastos &amp; Suministros La Sabana Ltda.<span class="dot">•</span>NIT: 860.034.912-3<span class="dot">•</span>25 Sep, 2026 - 11:15 AM</div>
+        </div>
+        <div class="inv-amount"><small>MONTO TOTAL</small><b>$ 1,850,000</b></div>
+        <div class="inv-actions">
+          <button class="icon-btn2 act-dl" title="Descargar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+          <button class="icon-btn2 act-view" title="Ver"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+
+      <div class="inv-card">
+        <div class="inv-ic">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+        </div>
+        <div class="inv-info">
+          <div class="inv-row1"><b>#C-500</b><span class="badge-emit badge-cred">Crédito 30 días</span><span class="inv-cufe">CUFE: 8b82...11af</span></div>
+          <div class="inv-row2">Papelería y Empaques Industriales S.A.<span class="dot">•</span>NIT: 901.442.309-8<span class="dot">•</span>24 Sep, 2026 - 02:40 PM</div>
+        </div>
+        <div class="inv-amount"><small>MONTO TOTAL</small><b>$ 980,000</b></div>
+        <div class="inv-actions">
+          <button class="icon-btn2 act-dl" title="Descargar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+          <button class="icon-btn2 act-view" title="Ver"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+
+      <div class="inv-card">
+        <div class="inv-ic">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+        </div>
+        <div class="inv-info">
+          <div class="inv-row1"><b>#C-499</b><span class="badge-emit">Pagada</span><span class="inv-cufe">CUFE: ee44...780c</span></div>
+          <div class="inv-row2">Distribuciones Avícolas San Marino<span class="dot">•</span>NIT: 890.902.341-0<span class="dot">•</span>22 Sep, 2026 - 09:20 AM</div>
+        </div>
+        <div class="inv-amount"><small>MONTO TOTAL</small><b>$ 2,470,000</b></div>
+        <div class="inv-actions">
+          <button class="icon-btn2 act-dl" title="Descargar"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+          <button class="icon-btn2 act-view" title="Ver"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="page-foot">
+      <span id="foot-count">Mostrando 4 de 96 facturas de compra registradas</span>
+      <div class="pagination">
+        <button class="pg">Anterior</button>
+        <button class="pg active">1</button>
+        <button class="pg">2</button>
+        <button class="pg">3</button>
+        <button class="pg dots">...</button>
+        <button class="pg">8</button>
+        <button class="pg">Siguiente</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ===== Buscador: filtra las facturas de compra en vivo =====
+  const input = document.getElementById('inv-search');
+  function apply() {
+    const q = input.value.trim().toLowerCase();
+    let n = 0;
+    document.querySelectorAll('.inv-card').forEach(c => {
+      const hit = c.textContent.toLowerCase().includes(q);
+      c.style.display = hit ? '' : 'none';
+      if (hit) n++;
+    });
+    document.getElementById('foot-count').textContent = q
+      ? `${n} resultados para "${input.value.trim()}" · de 96 facturas de compra registradas`
+      : 'Mostrando 4 de 96 facturas de compra registradas';
+  }
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); apply(); }
+  });
+
+  // Filtros rápidos: conmutación visual
+  document.querySelectorAll('.f-chip2, .chip-fill').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.f-chip2, .chip-fill').forEach(x => {
+      x.classList.remove('chip-fill'); x.classList.add('f-chip2');
+    });
+    c.classList.remove('f-chip2'); c.classList.add('chip-fill');
+  }));
+
+  // Acciones (prototipo no funcional)
+  document.querySelectorAll('.act-dl').forEach(b => b.addEventListener('click', () => showToast('La descarga está deshabilitada en el prototipo')));
+  document.querySelectorAll('.act-view').forEach(b => b.addEventListener('click', () => showToast('Vista de factura no disponible en el prototipo')));
+  document.getElementById('btn-new').addEventListener('click', () => showToast('El registro de compras se habilitará con los formularios'));
+  document.querySelectorAll('.pg:not(.dots)').forEach(p => p.addEventListener('click', () => showToast('La paginación es ilustrativa en el prototipo')));
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>

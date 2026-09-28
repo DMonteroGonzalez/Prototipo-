@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Inventario — Panel general</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px;}
+</style>
+</head>
+<body>
+
+
+
+<!-- ================= MAIN ================= -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>Panel general</h1>
+      <div class="sub">Domingo, 27 de septiembre · Sucursal Centro</div>
+    </div>
+    <div class="top-actions">
+      <div class="search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Buscar producto o venta…">
+        <span class="kbd">⌘ K</span>
+      </div>
+      <div class="icon-btn" title="Notificaciones">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="dot"></span>
+      </div>
+      <div class="dropdown">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Últimos 30 días
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.6" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen del negocio -->
+  <div class="section-head">
+    <h2>Resumen del negocio</h2>
+    <div class="link">Ver reporte
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+    </div>
+  </div>
+  <div class="section-sub">Indicadores consolidados de ventas, rentabilidad e inventario.</div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div>
+        <div class="kpi-label">Ventas netas</div>
+        <div class="kpi-value">$535.526</div>
+        <div class="kpi-delta up">↗ +12,4% <span class="dim">vs. período anterior</span></div>
+      </div>
+      <div>
+        <div class="kpi-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        </div>
+        <svg width="62" height="26" viewBox="0 0 62 26" style="margin-top:8px"><g fill="#cbd5e1"><rect x="2" y="12" width="6" height="12" rx="1.5"/><rect x="12" y="8" width="6" height="16" rx="1.5"/><rect x="22" y="14" width="6" height="10" rx="1.5"/><rect x="32" y="6" width="6" height="18" rx="1.5"/><rect x="42" y="10" width="6" height="14" rx="1.5"/></g><rect x="52" y="2" width="6" height="22" rx="1.5" fill="#0f766e"/></svg>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div>
+        <div class="kpi-label">Ganancia bruta</div>
+        <div class="kpi-value">$210.155</div>
+        <div class="kpi-delta up">↗ +8,7% <span class="dim">margen 39,2%</span></div>
+      </div>
+      <div>
+        <div class="kpi-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.4 0 1.3-1.3 2.2-3 2.2-1.3 0-2.4-.5-3-1.5"/></svg>
+        </div>
+        <svg width="62" height="26" viewBox="0 0 62 26" style="margin-top:8px"><g fill="#cbd5e1"><rect x="2" y="14" width="6" height="10" rx="1.5"/><rect x="12" y="10" width="6" height="14" rx="1.5"/><rect x="22" y="15" width="6" height="9" rx="1.5"/><rect x="32" y="8" width="6" height="16" rx="1.5"/><rect x="42" y="12" width="6" height="12" rx="1.5"/></g><rect x="52" y="4" width="6" height="20" rx="1.5" fill="#0f766e"/></svg>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div>
+        <div class="kpi-label">Productos por vencer</div>
+        <div class="kpi-value small">4</div>
+        <div class="kpi-delta up" style="color:var(--muted);font-weight:500">Próximos 10 días</div>
+      </div>
+      <div class="kpi-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div>
+        <div class="kpi-label">Productos críticos</div>
+        <div class="kpi-value small">12</div>
+        <div class="kpi-delta warn">↗ +4 <span class="dim">esta semana requieren aten…</span></div>
+      </div>
+      <div>
+        <div class="kpi-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        </div>
+        <svg width="62" height="26" viewBox="0 0 62 26" style="margin-top:8px"><g fill="#cbd5e1"><rect x="2" y="12" width="6" height="12" rx="1.5"/><rect x="12" y="14" width="6" height="10" rx="1.5"/><rect x="22" y="10" width="6" height="14" rx="1.5"/><rect x="32" y="15" width="6" height="9" rx="1.5"/><rect x="42" y="12" width="6" height="12" rx="1.5"/></g><rect x="52" y="6" width="6" height="18" rx="1.5" fill="#0f766e"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle row -->
+  <div class="row-mid">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <h3>Ventas y costos</h3>
+          <div class="card-sub">Evolución mensual · últimos 6 meses</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:#0f766e"></span>Ventas</span>
+          <span><span class="legend-dot" style="background:#cbd5e1"></span>Costos</span>
+        </div>
+      </div>
+      <svg id="chart" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="card">
+      <div class="alert-head">
+        <div class="left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          Alertas operativas
+        </div>
+        <span class="badge-new">7 NUEVAS</span>
+      </div>
+      <div class="alert">
+        <div class="alert-ic red">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div><b>Stock por debajo del mínimo</b><span>Leche entera · quedan 5 und.</span></div>
+        <span class="alert-tag tag-critico">CRÍTICO</span>
+      </div>
+      <div class="alert">
+        <div class="alert-ic amber">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div><b>Próximo a vencer</b><span>Yogur natural · vence en 10 días</span></div>
+        <span class="alert-tag tag-dias">10 DÍAS</span>
+      </div>
+      <div class="alert">
+        <div class="alert-ic teal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.5a1.5 1.5 0 0 0 1.5 1h8.6a1.5 1.5 0 0 0 1.5-1L21 7H6"/></svg>
+        </div>
+        <div><b>Sugerencia de compra</b><span>Café molido · rotación alta</span></div>
+        <span class="alert-tag tag-reponer">REPONER</span>
+      </div>
+      <div class="alert">
+        <div class="alert-ic gray">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7"/></svg>
+        </div>
+        <div><b>Margen reducido</b><span>6 productos bajo objetivo</span></div>
+        <span class="alert-tag tag-revisar">REVISAR</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="section-head">
+    <h2>Operación de hoy</h2>
+    <div class="link">Ver todas
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+    </div>
+  </div>
+  <div class="section-sub">Últimos movimientos y productos que requieren reposición.</div>
+
+  <div class="row-bottom">
+    <div class="card" style="padding:8px 10px 4px;">
+      <table id="sales-table">
+        <thead>
+          <tr>
+            <th>FACTURA</th><th>CLIENTE</th><th>CANAL</th><th>TOTAL</th><th>ESTADO</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="invoice">#V-1842</td>
+            <td><div class="cell-main">María López</div><div class="cell-sub">Hoy, 12:42</div></td>
+            <td>Tienda</td>
+            <td class="total">$86.400</td>
+            <td><span class="status st-pagada">PAGADA</span></td>
+            <td class="more">···</td>
+          </tr>
+          <tr>
+            <td class="invoice">#V-1841</td>
+            <td><div class="cell-main">Carlos Benítez</div><div class="cell-sub">Hoy, 12:38</div></td>
+            <td>Online</td>
+            <td class="total">$124.900</td>
+            <td><span class="status st-pagada">PAGADA</span></td>
+            <td class="more">···</td>
+          </tr>
+          <tr>
+            <td class="invoice">#V-1840</td>
+            <td><div class="cell-main">Lucía Gómez</div><div class="cell-sub">Hoy, 12:21</div></td>
+            <td>Tienda</td>
+            <td class="total">$38.500</td>
+            <td><span class="status st-pendiente">PENDIENTE</span></td>
+            <td class="more">···</td>
+          </tr>
+          <tr>
+            <td class="invoice">#V-1839</td>
+            <td><div class="cell-main">Distribuidora Norte</div><div class="cell-sub">Hoy, 11:47</div></td>
+            <td>Mayorista</td>
+            <td class="total">$286.300</td>
+            <td><span class="status st-pagada">PAGADA</span></td>
+            <td class="more">···</td>
+          </tr>
+          <tr>
+            <td class="invoice">#V-1838</td>
+            <td><div class="cell-main">Jorge Salas</div><div class="cell-sub">Hoy, 10:18</div></td>
+            <td>Online</td>
+            <td class="total">$52.700</td>
+            <td><span class="status st-reembolsada">REEMBOLSADA</span></td>
+            <td class="more">···</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="stock-head">
+        <div class="left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          Stock crítico
+        </div>
+        <span class="badge-count">12 PRODUCTOS</span>
+      </div>
+      <div class="stock-cols"><span></span><span>NIVEL / MÍNIMO</span></div>
+
+      <div class="stock-item">
+        <div class="stock-info"><b>Leche entera 1 L</b><span>LAC-00128</span></div>
+        <div class="stock-bar"><i class="fill-red" style="width:25%"></i></div>
+        <div class="stock-level"><b>5 und.</b> / mín. 20</div>
+        <button class="plus-btn">+</button>
+      </div>
+      <div class="stock-item">
+        <div class="stock-info"><b>Queso crema 300 g</b><span>LAC-00364</span></div>
+        <div class="stock-bar"><i class="fill-red" style="width:44%"></i></div>
+        <div class="stock-level"><b>8 und.</b> / mín. 18</div>
+        <button class="plus-btn">+</button>
+      </div>
+      <div class="stock-item">
+        <div class="stock-info"><b>Café molido 500 g</b><span>DES-00514</span></div>
+        <div class="stock-bar"><i class="fill-amber" style="width:58%"></i></div>
+        <div class="stock-level"><b>7 und.</b> / mín. 12</div>
+        <button class="plus-btn">+</button>
+      </div>
+      <div class="stock-item">
+        <div class="stock-info"><b>Pan integral</b><span>PAN-00182</span></div>
+        <div class="stock-bar"><i class="fill-amber" style="width:69%"></i></div>
+        <div class="stock-level"><b>11 und.</b> / mín. 16</div>
+        <button class="plus-btn">+</button>
+      </div>
+      <div class="stock-item">
+        <div class="stock-info"><b>Yogur natural</b><span>LAC-00702</span></div>
+        <div class="stock-bar"><i class="fill-amber" style="width:80%"></i></div>
+        <div class="stock-level"><b>12 und.</b> / mín. 15</div>
+        <button class="plus-btn">+</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ============ Gráfico de barras Ventas vs Costos ============
+  const data = [
+    {m:'Abr', v:330, c:220},
+    {m:'May', v:420, c:260},
+    {m:'Jun', v:360, c:240},
+    {m:'Jul', v:470, c:280},
+    {m:'Ago', v:450, c:270},
+    {m:'Sep', v:540, c:300},
+  ];
+  const svg = document.getElementById('chart');
+  const W = 640, H = 200, padL = 46, padB = 26, padT = 10;
+  const max = 600;
+  const innerW = W - padL - 14;
+  const innerH = H - padT - padB;
+  const groupW = innerW / data.length;
+  const barW = Math.min(26, groupW * 0.22);
+  let out = '';
+
+  // gridlines + etiquetas eje Y
+  [0, 200, 400, 600].forEach(v => {
+    const y = padT + innerH - (v / max) * innerH;
+    out += `<line x1="${padL}" y1="${y}" x2="${W-14}" y2="${y}" stroke="#eef1f4" stroke-width="1"/>`;
+    const label = v === 0 ? '$0' : '$' + v + 'k';
+    out += `<text x="${padL-8}" y="${y+3.5}" text-anchor="end" font-size="9.5" fill="#94a3b8">${label}</text>`;
+  });
+
+  const tooltip = document.getElementById('tooltip');
+  data.forEach((d, i) => {
+    const gx = padL + i * groupW + groupW / 2;
+    const yV = padT + innerH - (d.v / max) * innerH;
+    const yC = padT + innerH - (d.c / max) * innerH;
+    out += `<rect class="bar" data-m="${d.m}" data-t="ventas" data-val="${d.v}" x="${gx - barW - 3}" y="${yV}" width="${barW}" height="${padT + innerH - yV}" rx="3" fill="#0f766e"/>`;
+    out += `<rect class="bar" data-m="${d.m}" data-t="costos" data-val="${d.c}" x="${gx + 3}" y="${yC}" width="${barW}" height="${padT + innerH - yC}" rx="3" fill="#cbd5e1"/>`;
+    out += `<text x="${gx}" y="${H - 8}" text-anchor="middle" font-size="10" fill="#64748b">${d.m}</text>`;
+  });
+  svg.innerHTML = out;
+
+  svg.addEventListener('mousemove', e => {
+    const bar = e.target.closest('.bar');
+    if (!bar) { tooltip.style.opacity = 0; return; }
+    tooltip.innerHTML = `<b>${bar.dataset.m}</b> · ${bar.dataset.t}: $${bar.dataset.val}.000`;
+    tooltip.style.opacity = 1;
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top = (e.clientY - 34) + 'px';
+  });
+  svg.addEventListener('mouseleave', () => tooltip.style.opacity = 0);
+
+  // ============ Filtro de búsqueda en tabla ============
+  const input = document.querySelector('.search input');
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase();
+    document.querySelectorAll('#sales-table tbody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // ============ Navegación ============
+  document.querySelectorAll('.nav-wrap > .nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // ============ Botones "+" de stock ============
+  document.querySelectorAll('.plus-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.style.transform = 'scale(.85)';
+      setTimeout(() => btn.style.transform = '', 130);
+    });
+  });
+</script>
+</body>
+</html>

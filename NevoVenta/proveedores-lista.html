@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo Venta — Lista de Proveedores</title>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+/* ============ PÁGINA: LISTA DE PROVEEDORES ============ */
+  .submenu{visibility:hidden;transition:max-height .25s ease, visibility 0s linear .25s;}
+  .nav-wrap:hover .submenu,.nav-wrap:focus-within .submenu{visibility:visible;transition:max-height .25s ease;}
+
+  .page-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px 14px;min-height:calc(100vh - 36px);display:flex;flex-direction:column;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .title-row{display:flex;align-items:center;gap:10px;}
+  .page-head h1{font-size:19px;font-weight:700;letter-spacing:-.2px;}
+  .badge-dian{background:#dcfce7;color:#15803d;font-size:9.5px;font-weight:700;border-radius:20px;padding:3px 10px;letter-spacing:.4px;}
+  .page-head .sub{font-size:11.5px;color:var(--muted);margin-top:3px;max-width:480px;}
+  .head-actions{display:flex;gap:10px;align-items:stretch;}
+  .date-box-sm{background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px 14px;text-align:right;}
+  .date-box-sm span{display:block;font-size:7.5px;letter-spacing:1.3px;color:var(--muted-2);font-weight:700;}
+  .date-box-sm b{font-size:11px;display:flex;align-items:center;gap:6px;justify-content:flex-end;}
+  .btn-new{background:var(--sidebar);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:var(--font);transition:.15s;}
+  .btn-new:hover{background:#0f2230;}
+
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+  .kpi-label{font-size:9.5px;letter-spacing:1px;color:var(--muted);font-weight:700;}
+  .kpi-value{font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.3px;}
+  .kpi-value small{font-size:10px;font-weight:600;color:var(--muted);}
+  .kpi-foot{font-size:9.5px;color:#0d9488;font-weight:700;margin-top:3px;}
+  .kpi-foot.dim{color:var(--muted-2);font-weight:500;}
+  .kpi-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  .search-big{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:11px 16px;color:var(--muted-2);margin-bottom:10px;}
+  .search-big input{border:none;outline:none;font-family:var(--font);font-size:13px;flex:1;background:transparent;color:var(--text);}
+  .filter-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap;}
+  .chip-fill{background:var(--sidebar);color:#fff;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;font-family:var(--font);border:none;cursor:pointer;transition:.15s;}
+  .f-chip2{background:#fff;border:1px solid var(--border);font-family:var(--font);font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 12px;border-radius:20px;transition:.15s;}
+  .f-chip2:hover{border-color:var(--teal);color:var(--teal);}
+  .filter-hint{margin-left:auto;font-size:10px;color:var(--muted-2);}
+  .filter-hint .kbd{margin-left:4px;}
+
+  .table-wrap{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;flex:1;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{background:var(--sidebar);color:#cbd5e1;font-size:9px;letter-spacing:1px;font-weight:700;text-align:left;padding:12px 14px;white-space:nowrap;}
+  tbody td{padding:13px 14px;border-bottom:1px solid #f1f5f9;font-size:11px;vertical-align:top;}
+  tbody tr{transition:background .12s;}
+  tbody tr:hover{background:#f8fafc;}
+  tbody tr:last-child td{border-bottom:none;}
+  .cell-prov{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cell-prov b{display:block;font-size:11.5px;line-height:1.3;max-width:190px;}
+  .cell-prov span{font-size:9.5px;color:var(--muted-2);}
+  .nit-main{font-weight:700;}
+  .nit-sub{font-size:9px;color:var(--muted-2);max-width:120px;}
+  .cat-tag{display:inline-block;font-size:9px;font-weight:700;border-radius:6px;padding:4px 8px;line-height:1.3;max-width:120px;}
+  .cat-lact{background:#fef3c7;color:#b45309;}
+  .cat-alim{background:#fef3c7;color:#b45309;}
+  .cat-emp{background:#f3e8ff;color:#7e22ce;}
+  .cat-carn{background:#fee2e2;color:#b91c1c;}
+  .contact{font-size:9.5px;color:var(--muted);margin-top:5px;line-height:1.4;}
+  .pay-pill{display:inline-block;font-size:9.5px;font-weight:700;border-radius:20px;padding:5px 11px;line-height:1.3;text-align:center;}
+  .pay-cont{background:var(--teal-soft);color:var(--teal);}
+  .pay-cred{background:#dbeafe;color:#1d4ed8;}
+  .last-order b{display:block;font-size:12px;}
+  .last-order span{font-size:9px;color:var(--muted-2);line-height:1.4;display:block;max-width:130px;}
+  .row-actions{display:flex;gap:6px;justify-content:flex-end;}
+  .icon-btn2{width:28px;height:28px;border:1px solid var(--border);background:#fff;border-radius:7px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .icon-btn2:hover{border-color:var(--teal);color:var(--teal);background:#f0fdfa;}
+
+  .page-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 4px 4px;font-size:10.5px;color:var(--muted);flex-wrap:wrap;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sidebar);color:#fff;font-size:12px;font-weight:600;padding:11px 20px;border-radius:10px;transition:transform .25s;z-index:99;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<main class="main">
+  <div class="page-card">
+    <div class="page-head">
+      <div>
+        <div class="title-row">
+          <h1>Lista de Proveedores</h1>
+          <span class="badge-dian">Directorio Comercial</span>
+        </div>
+        <div class="sub">Directorio general de proveedores registrados, acuerdos comerciales, pedidos y gestión de compras</div>
+      </div>
+      <div class="head-actions">
+        <div class="date-box-sm">
+          <span>FECHA DEL SISTEMA</span>
+          <b>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            27 Sep, 2026
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.6" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </b>
+        </div>
+        <button class="btn-new" id="btn-new">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Nuevo Proveedor
+        </button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">TOTAL PROVEEDORES REGISTRADOS</div>
+          <div class="kpi-value">48 <span class="kpi-foot" style="display:inline;">↗ +4 este trimestre</span></div>
+          <div class="kpi-foot dim">Empresas comerciales verificadas</div>
+        </div>
+        <div class="kpi-icon" style="background:var(--teal-soft);color:var(--teal);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l7-5 7 5v13"/><path d="M3 21h18M9 21v-4h4v4"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">PROVEEDORES FRECUENTES</div>
+          <div class="kpi-value">24 <small>(50% de la red activa)</small></div>
+          <div class="kpi-foot">✔ 98% entregas a tiempo</div>
+        </div>
+        <div class="kpi-icon" style="background:#dcfce7;color:#15803d;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div>
+          <div class="kpi-label">COMPRAS FACTURADAS (MES)</div>
+          <div class="kpi-value">$ 8,420,000 <small>COP</small></div>
+          <div class="kpi-foot dim">Total en cuentas por pagar y órdenes</div>
+        </div>
+        <div class="kpi-icon" style="background:#dbeafe;color:#1d4ed8;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h4"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-big">
+      <input type="text" id="prov-search" placeholder="Buscar por razón social, NIT, contacto, categoría de insumo o ciudad..." autocomplete="off">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </div>
+
+    <div class="filter-row">
+      <span style="font-weight:600;">Filtro rápido:</span>
+      <button class="chip-fill">Todas (48)</button>
+      <button class="f-chip2">Alimentos y Bebidas</button>
+      <button class="f-chip2">Aseo e Higiene</button>
+      <button class="f-chip2">Papelería y Empaques</button>
+      <button class="f-chip2">Servicios y Mantenimiento</button>
+      <span class="filter-hint">Presiona <span class="kbd">Enter</span> para buscar</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>PROVEEDOR / RAZÓN SOCIAL</th><th>NIT /<br>DOCUMENTO</th><th>CATEGORÍA /<br>CONTACTO</th><th>CONDICIÓN<br>DE PAGO</th><th>ÚLTIMO PEDIDO<br>/ FACTURA</th><th style="text-align:right;">ACCIONES</th></tr>
+        </thead>
+        <tbody id="prov-tbody">
+          <tr>
+            <td><div class="cell-prov"><span class="avatar" style="background:#16303e;">DL</span><div><b>Distribuidora Lácteos del Norte S.A.S.</b><span>lacteosdelnorte@proveedores.co</span></div></div></td>
+            <td><div class="nit-main">900.124.582-1</div><div class="nit-sub">Régimen Común · Bogotá</div></td>
+            <td><span class="cat-tag cat-lact">Lácteos y Refrigerados</span><div class="contact">Pedro Gómez (+57 310 456 7890)</div></td>
+            <td><span class="pay-pill pay-cont">Contado /<br>15 días</span></td>
+            <td><div class="last-order"><b>$ 3,120.000</b><span>COP<br>Factura #C-502 · Ayer 14:26</span></div></td>
+            <td><div class="row-actions">
+              <button class="icon-btn2 act-view" title="Ver"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="icon-btn2 act-edit" title="Editar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-prov"><span class="avatar" style="background:#0f766e;">AS</span><div><b>Abastos &amp; Suministros La Sabana Ltda.</b><span>ventas@lassabana.co</span></div></div></td>
+            <td><div class="nit-main">860.034.912-3</div><div class="nit-sub">Gran Contribuyente · Cota</div></td>
+            <td><span class="cat-tag cat-alim">Alimentos y Despensa</span><div class="contact">Clara Rojas (+57 320 892 1102)</div></td>
+            <td><span class="pay-pill pay-cred">Crédito 30<br>días</span></td>
+            <td><div class="last-order"><b>$ 1,850.000</b><span>COP<br>Factura #C-501 · 25 Sep, 2026</span></div></td>
+            <td><div class="row-actions">
+              <button class="icon-btn2 act-view" title="Ver"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="icon-btn2 act-edit" title="Editar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-prov"><span class="avatar" style="background:#7e22ce;">PE</span><div><b>Papelería y Empaques Industriales S.A.</b><span>corporativo@empaquesind.com</span></div></div></td>
+            <td><div class="nit-main">901.442.109-8</div><div class="nit-sub">Régimen Ordinario · Medellín</div></td>
+            <td><span class="cat-tag cat-emp">Empaques y Papelería</span><div class="contact">Jorge Mendoza (+57 314 200 9944)</div></td>
+            <td><span class="pay-pill pay-cred">Crédito 30<br>días</span></td>
+            <td><div class="last-order"><b>$ 980.000</b><span>COP<br>Factura #C-500 · 22 Sep, 2026</span></div></td>
+            <td><div class="row-actions">
+              <button class="icon-btn2 act-view" title="Ver"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="icon-btn2 act-edit" title="Editar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-prov"><span class="avatar" style="background:#be185d;">SM</span><div><b>Distribuciones Avícolas San Marino</b><span>pedidos@avicolasanmarino.com</span></div></div></td>
+            <td><div class="nit-main">890.902.341-0</div><div class="nit-sub">Régimen Común · Bucaramanga</div></td>
+            <td><span class="cat-tag cat-carn">Carnes y Frescos</span><div class="contact">Martha Pérez (+57 318 671 4321)</div></td>
+            <td><span class="pay-pill pay-cont">Contado<br>Inmediato</span></td>
+            <td><div class="last-order"><b>$ 2,470.000</b><span>COP<br>Factura #C-499 · 19 Sep, 2026</span></div></td>
+            <td><div class="row-actions">
+              <button class="icon-btn2 act-view" title="Ver"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="icon-btn2 act-edit" title="Editar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-foot">
+      <span id="foot-count">Mostrando 4 de 48 proveedores registrados</span>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="assets/js/sidebar.js"></script>
+<script>
+  // ===== Buscador: filtra la tabla de proveedores en vivo =====
+  const input = document.getElementById('prov-search');
+  function apply() {
+    const q = input.value.trim().toLowerCase();
+    let n = 0;
+    document.querySelectorAll('#prov-tbody tr').forEach(r => {
+      const hit = r.textContent.toLowerCase().includes(q);
+      r.style.display = hit ? '' : 'none';
+      if (hit) n++;
+    });
+    document.getElementById('foot-count').textContent = q
+      ? `${n} resultados para "${input.value.trim()}" · de 48 proveedores registrados`
+      : 'Mostrando 4 de 48 proveedores registrados';
+  }
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); apply(); }
+  });
+
+  // Filtros rápidos: conmutación visual
+  document.querySelectorAll('.f-chip2, .chip-fill').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.f-chip2, .chip-fill').forEach(x => {
+      x.classList.remove('chip-fill'); x.classList.add('f-chip2');
+    });
+    c.classList.remove('f-chip2'); c.classList.add('chip-fill');
+  }));
+
+  // Acciones (prototipo no funcional)
+  document.querySelectorAll('.act-view').forEach(b => b.addEventListener('click', () => showToast('El detalle del proveedor se habilitará en la integración')));
+  document.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', () => showToast('La edición se habilitará con los formularios')));
+  document.getElementById('btn-new').addEventListener('click', () => showToast('La creación de proveedores se habilitará con los formularios'));
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>
