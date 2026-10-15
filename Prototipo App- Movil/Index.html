@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#16303e">
+<title>Nexo Venta POS · Móvil</title>
+<style>
+  :root{
+    --teal:#0f766e; --teal-dark:#0b5a54; --teal-soft:#d8efec;
+    --navy:#16303e; --bg:#eef1f4; --card:#ffffff; --border:#d7dee6;
+    --text:#1e293b; --muted:#64748b; --muted-2:#94a3b8;
+    --amber:#b45309; --amber-bg:#fef3c7; --red:#b91c1c; --red-bg:#fee2e2;
+    --green:#15803d; --green-bg:#dcfce7; --blue:#1d4ed8; --blue-bg:#dbeafe;
+    --purple:#7e22ce; --purple-bg:#f3e8ff; --pink:#be185d;
+    --tabbar-h:64px; --header-h:56px;
+    --font:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important;} }
+  body{font-family:var(--font);background:#dfe5ea;color:var(--text);font-size:15px;line-height:1.45;
+       display:flex;justify-content:center;min-height:100dvh;}
+  button{font-family:var(--font);cursor:pointer;}
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:6px;}
+
+  /* Marco app */
+  #phone{width:100%;max-width:430px;min-height:100dvh;background:var(--bg);display:flex;flex-direction:column;
+         position:relative;box-shadow:0 0 40px rgba(0,0,0,.18);}
+  @media (min-width:480px){ body{padding:20px 0;} #phone{min-height:calc(100dvh - 40px);border-radius:28px;overflow:hidden;} }
+
+  /* Header */
+  #app-header{position:sticky;top:0;z-index:40;background:var(--navy);color:#fff;height:var(--header-h);
+              display:flex;align-items:center;gap:10px;padding:0 14px;flex-shrink:0;}
+  #app-header .mark{width:32px;height:32px;border-radius:9px;background:#17517a;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  #app-header .titles{flex:1;min-width:0;}
+  #app-header .titles b{font-size:15px;display:block;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #app-header .titles span{font-size:10.5px;color:#8ea3b3;}
+  .hbtn{width:44px;height:44px;border:none;background:transparent;color:#cbd5e1;display:flex;align-items:center;justify-content:center;border-radius:10px;position:relative;}
+  .hbtn:active{background:rgba(255,255,255,.1);}
+  .hbtn .dot{position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;background:#ef4444;border:1.5px solid var(--navy);}
+
+  /* Contenido */
+  #view{flex:1;overflow-y:auto;padding:14px 14px calc(var(--tabbar-h) + 20px);}
+  .page-sub{font-size:12px;color:var(--muted);margin:-6px 0 12px;}
+
+  /* Secciones y tarjetas */
+  .sec-title{font-size:16px;font-weight:700;margin:16px 0 4px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+  .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;}
+  .kpi .l{font-size:11px;color:var(--muted);font-weight:600;}
+  .kpi .v{font-size:19px;font-weight:800;margin-top:3px;letter-spacing:-.3px;}
+  .kpi .d{font-size:10.5px;font-weight:700;margin-top:2px;}
+  .d.up{color:#0d9488;} .d.warn{color:var(--amber);} .d.dim{color:var(--muted-2);font-weight:500;}
+  .pill{display:inline-block;font-size:9.5px;font-weight:700;border-radius:20px;padding:3px 9px;letter-spacing:.3px;}
+  .pill-g{background:var(--green-bg);color:var(--green);} .pill-a{background:var(--amber-bg);color:var(--amber);}
+  .pill-r{background:var(--red-bg);color:var(--red);} .pill-t{background:var(--teal-soft);color:var(--teal);}
+  .pill-b{background:var(--blue-bg);color:var(--blue);} .pill-gr{background:#f1f5f9;color:var(--muted);}
+  .pill-p{background:var(--purple-bg);color:var(--purple);}
+
+  /* Botones táctiles (mínimo 48px) */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:none;border-radius:12px;
+       font-size:14.5px;font-weight:700;padding:0 18px;}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-teal{background:var(--navy);color:#fff;}
+  .btn-line{background:#fff;border:1.5px solid var(--border);color:var(--navy);font-weight:600;}
+  .btn{transition:transform .1s ease, background .15s ease;}
+  .btn:active{transform:scale(.97);}
+  .btn-teal:active{background:#0f2230;}
+  .icon-btn{width:48px;height:48px;border:1px solid var(--border);background:#fff;border-radius:12px;color:var(--muted);
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .icon-btn:active{background:#f1f5f9;}
+
+  /* Buscadores */
+  .search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:12px;
+          padding:4px 14px;min-height:48px;color:var(--muted-2);margin-bottom:12px;}
+  .search input{border:none;outline:none;font-family:var(--font);font-size:16px;flex:1;background:transparent;color:var(--text);min-height:40px;}
+
+  /* Chips */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex-shrink:0;border:1px solid var(--border);background:#fff;border-radius:20px;padding:10px 16px;font-size:13px;
+        font-weight:600;color:var(--muted);min-height:40px;}
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.on-t{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .seg{display:flex;background:#e2e8f0;border-radius:12px;padding:4px;gap:4px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;border-radius:9px;min-height:44px;font-size:13px;font-weight:600;color:var(--muted);}
+  .seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+
+  /* Tarjetas de lista (tablas convertidas) */
+  .lcard{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;}
+  .lcard:active{background:#f8fafc;}
+  .avatar{width:42px;height:42px;border-radius:50%;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .lcard .grow{flex:1;min-width:0;}
+  .lcard b.t{display:block;font-size:14px;line-height:1.25;}
+  .lcard .s{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4;}
+  .lcard .row2{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;}
+  .amount{font-size:15px;font-weight:800;white-space:nowrap;}
+  .amount small{display:block;font-size:8.5px;letter-spacing:1px;color:var(--muted-2);font-weight:700;}
+  .icon-sq{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  /* Barras de progreso */
+  .pbar{height:6px;background:#f1f5f9;border-radius:4px;overflow:hidden;flex:1;}
+  .pbar i{display:block;height:100%;border-radius:4px;}
+
+  /* Chart */
+  .chart{width:100%;height:190px;}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:6px;flex-wrap:wrap;}
+  .ldot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:0;}
+
+  /* Tab bar */
+  #tabbar{position:absolute;bottom:0;left:0;right:0;height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+          background:#fff;border-top:1px solid var(--border);display:flex;z-index:40;
+          padding-bottom:env(safe-area-inset-bottom);}
+  #tabbar button{flex:1;border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+                 color:var(--muted-2);font-size:10px;font-weight:600;min-height:48px;}
+  #tabbar button[aria-current="page"]{color:var(--teal);}
+  #tabbar button:active{color:var(--teal);}
+
+  /* Drawer (Más) */
+  #backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s;}
+  #drawer{position:absolute;top:0;right:0;bottom:0;width:82%;max-width:320px;background:#fff;z-index:51;
+          transform:translateX(105%);transition:transform .22s ease;display:flex;flex-direction:column;}
+  #drawer.open{transform:translateX(0);}
+  #backdrop.show{opacity:1;pointer-events:auto;}
+  #drawer .dhead{background:var(--navy);color:#fff;padding:18px 16px;display:flex;align-items:center;gap:10px;}
+  #drawer .dhead b{font-size:15px;display:block;} #drawer .dhead span{font-size:11px;color:#8ea3b3;}
+  .ditem{display:flex;align-items:center;gap:12px;width:100%;border:none;background:none;text-align:left;
+         padding:14px 16px;font-size:14.5px;font-weight:600;color:var(--text);min-height:52px;}
+  .ditem:active{background:#f1f5f9;}
+  .ditem small{display:block;font-weight:500;color:var(--muted);font-size:11px;}
+  .dgroup{padding:8px 16px 2px;font-size:10.5px;letter-spacing:1.4px;color:var(--muted-2);font-weight:700;}
+
+  /* Bottom sheets (ticket POS / teclado) */
+  #sheet-wrap{position:absolute;inset:0;z-index:60;pointer-events:none;}
+  #sheet-wrap .sb{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;
+                  transform:translateY(105%);transition:transform .24s ease;max-height:82%;display:flex;flex-direction:column;
+                  padding:10px 16px calc(16px + env(safe-area-inset-bottom));pointer-events:auto;}
+  #sheet-wrap.show{pointer-events:auto;}
+  #sheet-wrap.show .sb{transform:translateY(0);}
+  .grab{width:40px;height:4px;border-radius:2px;background:#cbd5e1;margin:2px auto 10px;}
+  .sb-title{font-size:16px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+  .t-item{display:flex;gap:8px;padding:9px 0;font-size:14px;align-items:baseline;border-bottom:1px solid #f1f5f9;}
+  .t-item .dots{flex:1;border-bottom:2px dotted #cbd5e1;transform:translateY(-3px);}
+  .keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+  .key{min-height:56px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:19px;font-weight:700;color:var(--navy);}
+  .key:active{background:var(--teal-soft);}
+  .key.r{color:var(--red);} .key.ok{background:var(--navy);color:#fff;}
+  .pay-display{background:#f8fafc;border:1px solid var(--border);border-radius:12px;text-align:right;padding:10px 14px;font-size:21px;font-weight:800;color:var(--navy);}
+  .pay-display small{display:block;font-size:9px;color:var(--muted-2);font-weight:600;letter-spacing:.6px;}
+
+  /* FAB ticket */
+  #fab{position:absolute;right:14px;bottom:calc(var(--tabbar-h) + 18px);z-index:45;min-height:54px;padding:0 20px;
+       background:var(--red);color:#fff;border:none;border-radius:30px;font-size:14.5px;font-weight:800;
+       display:flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(198,47,47,.4);}
+  #fab .cnt{background:#fff;color:var(--red);border-radius:20px;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;padding:0 6px;}
+
+
+  /* ===== Formularios modales (add categoría / cliente / producto) ===== */
+  #form-overlay{position:absolute;inset:0;background:rgba(15,23,42,.55);z-index:80;display:none;align-items:center;justify-content:center;padding:18px;}
+  #form-overlay.show{display:flex;}
+  .form-card{background:#fff;border-radius:22px;width:100%;max-height:88%;overflow-y:auto;padding:26px 20px 22px;position:relative;
+              box-shadow:0 20px 50px rgba(0,0,0,.3);animation:formIn .22s ease;}
+  @keyframes formIn{from{transform:translateY(16px) scale(.98);opacity:0;}to{transform:none;opacity:1;}}
+  .form-logo{width:88px;height:88px;border-radius:50%;background:#fff;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;gap:7px;margin:0 auto 22px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .form-logo .fl-mark{width:30px;height:30px;border-radius:8px;background:#17517a;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .form-logo b{font-size:13px;color:var(--navy);display:block;line-height:1.05;}
+  .form-logo small{font-size:7px;letter-spacing:2.5px;color:#8ea3b3;font-weight:700;}
+  .form-x{position:absolute;top:12px;right:12px;width:40px;height:40px;border:none;background:#f1f5f9;border-radius:12px;color:var(--muted);font-size:15px;font-weight:700;}
+  .form-x:active{background:#e2e8f0;}
+  .ffield{width:100%;border:1.5px solid var(--border);border-radius:12px;min-height:52px;padding:0 16px;font-family:var(--font);font-size:16px;background:#fff;color:var(--text);margin-bottom:12px;text-align:center;outline:none;}
+  .ffield:focus{border-color:var(--teal);}
+  .ffield::placeholder{color:var(--muted-2);}
+  textarea.ffield{padding:14px 16px;min-height:88px;resize:none;line-height:1.4;}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .frow .ffield{margin-bottom:0;}
+  .frow + .ffield, .frow + .frow{margin-top:12px;}
+  .fselect{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;color:var(--muted-2);}
+  .btn-ok{background:#8bc34a;color:#16303e;width:100%;font-size:15.5px;margin-top:6px;letter-spacing:.2px;}
+  .btn-ok:active{background:#7aae3e;}
+  .form-err{background:var(--bg);border-radius:14px;text-align:center;padding:34px 20px;color:var(--red);font-weight:800;font-size:16px;line-height:1.4;}
+  .form-err .erric{width:54px;height:54px;border-radius:50%;background:var(--red-bg);color:var(--red);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+  .form-ok{background:var(--bg);border-radius:14px;text-align:center;padding:34px 20px;color:var(--green);font-weight:800;font-size:16px;line-height:1.4;}
+  .form-ok .okic{width:54px;height:54px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+  .toast{position:absolute;bottom:calc(var(--tabbar-h) + 16px);left:50%;transform:translateX(-50%) translateY(20px);
+         background:var(--navy);color:#fff;font-size:13px;font-weight:600;padding:12px 20px;border-radius:12px;
+         opacity:0;transition:.25s;z-index:70;max-width:86%;text-align:center;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .empty{text-align:center;color:var(--muted);padding:36px 20px;font-size:13.5px;}
+  .empty .ic{width:56px;height:56px;border-radius:16px;background:#e2e8f0;color:var(--muted-2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+  .empty b{display:block;color:var(--text);margin-bottom:4px;font-size:14.5px;}
+  .foot-note{font-size:11px;color:var(--muted);text-align:center;padding:6px 0 4px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+  .sync{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div id="phone">
+  <header id="app-header">
+    <div class="mark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 20V5h3.2l6 9.5V5H18.5v15h-3.2l-6-9.5V20H6z" fill="#fff"/><path d="M13.2 15.8l2.9 3.5 4.6-5.4" stroke="#fff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="3" width="5.2" height="2.6" fill="#aeb9c4" transform="rotate(-28 20.6 4.3)"/></svg>
+    </div>
+    <div class="titles"><b id="h-title">Panel general</b><span id="h-sub">Domingo, 27 de septiembre · Sucursal Centro</span></div>
+    <button class="hbtn" aria-label="Notificaciones" onclick="toast('Sin notificaciones nuevas')">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="dot"></span>
+    </button>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <button id="fab" hidden onclick="openTicket()">Ticket <span class="cnt" id="fab-cnt">3</span></button>
+
+  <nav id="tabbar" aria-label="Navegación principal">
+    <button data-tab="inicio" aria-current="page" aria-label="Inicio">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>Inicio</button>
+    <button data-tab="inventario" aria-label="Inventario">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5V3h6v1.5"/><path d="M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/></svg>Inventario</button>
+    <button data-tab="ventas" aria-label="Ventas">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="6.5" rx="6" ry="2.8"/><path d="M3 6.5v5c0 1.6 2.7 2.8 6 2.8s6-1.2 6-2.8v-5"/><ellipse cx="17" cy="9.5" rx="4" ry="1.9"/><path d="M13 9.5v5"/></svg>Ventas</button>
+    <button data-tab="facturas" aria-label="Facturas">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>Facturas</button>
+    <button data-tab="mas" aria-label="Más opciones" onclick="openDrawer()">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>Más</button>
+  </nav>
+
+  <div id="backdrop" onclick="closeAll()"></div>
+  <aside id="drawer" aria-label="Menú adicional">
+    <div class="dhead">
+      <div class="mark" style="width:36px;height:36px;border-radius:10px;background:#17517a;display:flex;align-items:center;justify-content:center;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M6 20V5h3.2l6 9.5V5H18.5v15h-3.2l-6-9.5V20H6z" fill="#fff"/><path d="M13.2 15.8l2.9 3.5 4.6-5.4" stroke="#fff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div><b>Nexo Venta</b><span>MÓVIL · v2.4</span></div>
+    </div>
+    <div class="dgroup">CLIENTES</div>
+    <button class="ditem" onclick="go('clientes-lista')">Lista de Clientes<small>Directorio y gestión de contacto</small></button>
+    <button class="ditem" onclick="go('clientes-reporte')">Reporte de Clientes<small>Analítica y fidelización</small></button>
+    <div class="dgroup">PROVEEDORES</div>
+    <button class="ditem" onclick="go('proveedores-lista')">Lista de Proveedores<small>Directorio comercial</small></button>
+    <button class="ditem" onclick="go('proveedores-reporte')">Reporte de Proveedores<small>Evaluación y desempeño</small></button>
+    <div class="dgroup">SISTEMA</div>
+    <button class="ditem" onclick="toast('Ajustes no disponible en el prototipo')">Ajustes<small>Configuración del sistema</small></button>
+    <div style="margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+      <span class="avatar" style="width:36px;height:36px;background:linear-gradient(135deg,#2dd4bf,#0f766e);font-size:11px;">DM</span>
+      <div><b style="font-size:13.5px;">Daniel Montero</b><div style="font-size:11px;color:var(--muted);">Administrador</div></div>
+      <span style="margin-left:auto;" class="pill pill-g">En línea</span>
+    </div>
+  </aside>
+
+  <div id="sheet-wrap" onclick="if(event.target===this)closeAll()">
+    <div class="sb" id="sheet"></div>
+  </div>
+  <div id="form-overlay" onclick="if(event.target===this)closeForm()"><div class="form-card" id="form-card" role="dialog" aria-modal="true" aria-label="Formulario"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ================= DATOS (idénticos al prototipo escritorio) ================= */
+const ALERTAS = [
+  {t:'Stock por debajo del mínimo', s:'Leche entera · quedan 5 und.', tag:'CRÍTICO', c:'r'},
+  {t:'Próximo a vencer', s:'Yogur natural · vence en 10 días', tag:'10 DÍAS', c:'a'},
+  {t:'Sugerencia de compra', s:'Café molido · rotación alta', tag:'REPONER', c:'t'},
+  {t:'Margen reducido', s:'6 productos bajo objetivo', tag:'REVISAR', c:'gr'},
+];
+const VENTAS_R = [
+  {f:'#V-1842', c:'María López', h:'Hoy, 12:42', canal:'Tienda', total:'$86.400', e:'PAGADA'},
+  {f:'#V-1841', c:'Carlos Benítez', h:'Hoy, 12:38', canal:'Online', total:'$124.900', e:'PAGADA'},
+  {f:'#V-1840', c:'Lucía Gómez', h:'Hoy, 12:21', canal:'Tienda', total:'$38.500', e:'PENDIENTE'},
+  {f:'#V-1839', c:'Distribuidora Norte', h:'Hoy, 11:47', canal:'Mayorista', total:'$286.300', e:'PAGADA'},
+  {f:'#V-1838', c:'Jorge Salas', h:'Hoy, 10:18', canal:'Online', total:'$52.700', e:'REEMBOLSADA'},
+];
+const STOCK_C = [
+  {n:'Leche entera 1 L', c:'LAC-00128', u:5, m:20},
+  {n:'Queso crema 300 g', c:'LAC-00364', u:8, m:18},
+  {n:'Café molido 500 g', c:'DES-00514', u:7, m:12},
+  {n:'Pan integral', c:'PAN-00182', u:11, m:16},
+  {n:'Yogur natural', c:'LAC-00702', u:12, m:15},
+];
+const CATEGORIAS = [
+  {n:'Aseo', tag:'Activa', icon:'spark', bg:'#d8efec', c:'#0f766e', meta:'24 productos en catálogo · Cód: CAT-ASE · Desinfectantes, detergentes y limpieza general'},
+  {n:'Papelería', tag:'Activa', icon:'pen', bg:'#fef3c7', c:'#b45309', meta:'58 productos en catálogo · Cód: CAT-PAP · Cuadernos, bolígrafos, impresos y suministros'},
+  {n:'Bebidas alcohólicas', tag:'Activa', icon:'bottle', bg:'#f3e8ff', c:'#7e22ce', meta:'42 productos en catálogo · Cód: CAT-ALC · Cervezas, licores, vinos y destilados', extra:'+18'},
+  {n:'Alimentos y bebidas', tag:'Activa', icon:'cup', bg:'#dcfce7', c:'#15803d', meta:'115 productos en catálogo · Cód: CAT-ALM · Snacks, abarrotes, lácteos y jugos no alcohólicos'},
+];
+const PRODUCTOS = [
+  {n:'Leche Alquería entera', f:'Bolsa 1.100 ml', sku:'ALQ-ENT-001', p:'$4.300 COP', s:'2 unidades', sn:'Stock mínimo requerido', sc:'a', key:'leche alquería entera lácteos'},
+  {n:'Leche Alquería deslactosada', f:'Bolsa 1.100 ml', sku:'ALQ-DES-002', p:'$4.600 COP', s:'3 unidades', sn:'Próximo a agotar', sc:'a', key:'leche alquería deslactosada lácteos'},
+  {n:'Leche Colanta', f:'Tetrapak 1.000 ml', sku:'COL-ENT-003', p:'$3.950 COP', s:'0 unidades', sn:'Se agotó esta semana en tienda', sc:'r', out:true, key:'leche colanta lácteos'},
+];
+const POS_PRODUCTOS = [
+  {n:'LECHE ALQUERÍA', d:'Bolsa x 1100 ml', p:5400, pack:['#e04545','#b92c2c','MEGALITRO','ALQUERÍA','Sabor Original','Entera 1.1 L']},
+  {n:'LECHE COLANTA', d:'Bolsa x 900 ml', p:4400, pack:['#35a55f','#1f7a42',null,'COLANTA','Sabor natural','Neto 900 ml']},
+  {n:'LECHE DESLACTOSADA', d:'Bolsa familiar premium', p:11500, pack:['#3b76d6','#2656a8','DIGESTIÓN FÁCIL','ALQUERÍA','Deslactosada','Mega 1100 ml']},
+  {n:'QUESO CAMPESINO', d:'Bloque x 500 gr', p:8900, pack:['#f5dc7a','#e3bd45',null,'QUESO MOLDE','500 gr · Fresco',null]},
+];
+const FVENTA = [
+  {f:'#V-1043', e:'Emitida', cu:'a3f8...9b21', c:'Inversiones Los Andes S.A.S', d:'CC/NIT: 900.845.123-1', h:'10:45 AM - Hoy', m:'$ 1,450,000'},
+  {f:'#V-1042', e:'Emitida', cu:'c7d1...4e88', c:'Carlos Andrés Mendoza', d:'CC: 1.020.450.990', h:'09:30 AM - Hoy', m:'$ 680,000'},
+  {f:'#V-1041', e:'Emitida', cu:'8b02...7faf', c:'Distribuidora del Norte S.A.S.', d:'NIT: 890.123.456-7', h:'08:15 AM - Hoy', m:'$ 1,212,500'},
+  {f:'#V-1040', e:'Emitida', cu:'ee44...780c', c:'Mariana Torres V.', d:'CC: 52.981.332', h:'07:50 AM - Hoy', m:'$ 500,000'},
+];
+const FCOMPRA = [
+  {f:'#C-502', e:'Pagada', ec:'g', cu:'c4a1...9b21', c:'Distribuidora Lácteos del Norte S.A.S.', d:'NIT: 900.124.582-1', h:'26 Sep - 04:30 PM', m:'$ 3,120,000'},
+  {f:'#C-501', e:'Pagada', ec:'g', cu:'c7d1...4e88', c:'Abastos & Suministros La Sabana Ltda.', d:'NIT: 860.034.912-3', h:'25 Sep - 11:15 AM', m:'$ 1,850,000'},
+  {f:'#C-500', e:'Crédito 30 días', ec:'a', cu:'8b82...11af', c:'Papelería y Empaques Industriales S.A.', d:'NIT: 901.442.309-8', h:'24 Sep - 02:40 PM', m:'$ 980,000'},
+  {f:'#C-499', e:'Pagada', ec:'g', cu:'ee44...780c', c:'Distribuciones Avícolas San Marino', d:'NIT: 890.902.341-0', h:'22 Sep - 09:20 AM', m:'$ 2,470,000'},
+];
+const CLIENTES = [
+  {ini:'AM', bg:'#16303e', n:'Alfredo Martínez', s:'alfredo.martinez@email.com', d:'10597854', dc:'C.C. Colombia', tag:'Frecuente', tc:'g', lb:'Hoy, 10:45 AM', f:'Factura #V-1043'},
+  {ini:'CG', bg:'#0f766e', n:'Carlos Gutiierrez', s:'+57 312 450 9890', d:'1825698', dc:'C.C. Colombia', tag:'Ocasional', tc:'gr', lb:'Ayer, 04:30 PM', f:'Factura #V-1028'},
+  {ini:'EJ', bg:'#7e22ce', n:'Estefanía Jiménez', s:'ea.stefania.j@empresa.co', d:'1825874', dc:'C.C. Colombia', tag:'Frecuente', tc:'g', lb:'25 Sep, 2026', f:'Factura #V-0994'},
+  {ini:'MT', bg:'#be185d', n:'Mariana Torres V.', s:'mariana.torres@gmail.com', d:'52913332', dc:'C.C. 52.981.332', tag:'Ocasional', tc:'gr', lb:'Hoy, 07:50 AM', f:'Factura #V-1040'},
+  {ini:'IA', bg:'#1d4ed8', n:'Inversiones Los Andes S.A.S.', s:'contacto@losandes.com.co', d:'900845123-1', dc:'NIT Corporativo', tag:'Empresa Jurídica', tc:'b', lb:'Hoy, 10:45 AM', f:'Factura #V-1043'},
+];
+const TOP_CLIENTES = [
+  {ini:'RG', bg:'#0f766e', n:'Roblete Guiliman', tier:'Cliente Platino', tc:'t', id:'15879510', num:30, m:'$527,502'},
+  {ini:'LJ', bg:'#7e22ce', n:'Lionel Jhonson', tier:'Cliente Oro', tc:'a', id:'14557895', num:24, m:'$458,365'},
+  {ini:'CV', bg:'#d97706', n:'Constantin Valdor', tier:'Cliente Oro', tc:'a', id:'2548795', num:20, m:'$412,000'},
+  {ini:'LR', bg:'#1d4ed8', n:'Leman Russ', tier:'Cliente Frecuente', tc:'gr', id:'18984521', num:18, m:'$389,400'},
+  {ini:'RD', bg:'#b91c1c', n:'Rogal Dorn', tier:'Cliente Frecuente', tc:'gr', id:'19875412', num:16, m:'$342,150'},
+];
+const PROVEEDORES = [
+  {ini:'DL', bg:'#16303e', n:'Distribuidora Lácteos del Norte S.A.S.', s:'lacteosdelnorte@proveedores.co', nit:'900.124.582-1', rg:'Régimen Común · Bogotá', cat:'Lácteos y Refrigerados', cc:'#fef3c7', ct:'#b45309', ct2:'#b45309', con:'Pedro Gómez (+57 310 456 7890)', pay:'Contado / 15 días', pc:'t', m:'$ 3,120.000', f:'Factura #C-502 · Ayer 14:26'},
+  {ini:'AS', bg:'#0f766e', n:'Abastos & Suministros La Sabana Ltda.', s:'ventas@lassabana.co', nit:'860.034.912-3', rg:'Gran Contribuyente · Cota', cat:'Alimentos y Despensa', cc:'#fef3c7', ct:'#b45309', con:'Clara Rojas (+57 320 892 1102)', pay:'Crédito 30 días', pc:'b', m:'$ 1,850.000', f:'Factura #C-501 · 25 Sep, 2026'},
+  {ini:'PE', bg:'#7e22ce', n:'Papelería y Empaques Industriales S.A.', s:'corporativo@empaquesind.com', nit:'901.442.109-8', rg:'Régimen Ordinario · Medellín', cat:'Empaques y Papelería', cc:'#f3e8ff', ct:'#7e22ce', con:'Jorge Mendoza (+57 314 200 9944)', pay:'Crédito 30 días', pc:'b', m:'$ 980.000', f:'Factura #C-500 · 22 Sep, 2026'},
+  {ini:'SM', bg:'#be185d', n:'Distribuciones Avícolas San Marino', s:'pedidos@avicolasanmarino.com', nit:'890.902.341-0', rg:'Régimen Común · Bucaramanga', cat:'Carnes y Frescos', cc:'#fee2e2', ct:'#b91c1c', con:'Martha Pérez (+57 318 671 4321)', pay:'Contado Inmediato', pc:'t', m:'$ 2,470.000', f:'Factura #C-499 · 19 Sep, 2026'},
+];
+const RATING_P = [
+  {ini:'AS', bg:'#16303e', n:'Auramita S.A', tag:'Distribución Mayorista • Insumos', id:'1456765', em:'MasterofAuramita@gmail.com', tel:'5875464', st:3, rt:'Promedio (3.0 / 5.0)', rc:'#fef3c7', rct:'#b45309'},
+  {ini:'DL', bg:'#0f766e', n:'Distribuidora Lácteos del Norte S.A.S.', tag:'Lácteos y Refrigerados • Bogotá', id:'900.124.582-1', em:'lacteosdelnorte@proveedores.co', tel:'+57 318 4567890', st:5, rt:'Excelente (4.9 / 5.0)', rc:'#dcfce7', rct:'#15803d'},
+  {ini:'AS', bg:'#0f766e', n:'Abastos & Suministros La Sabana Ltda.', tag:'Alimentos y Despensa • Cota', id:'860.034.912-3', em:'ventas@lassabana.co', tel:'+57 320 8921102', st:4, rt:'Confiable (4.2 / 5.0)', rc:'#d8efec', rct:'#0f766e'},
+  {ini:'PE', bg:'#7e22ce', n:'Papelería y Empaques Industriales S.A.', tag:'Empaques y Papelería • Medellín', id:'901.442.109-8', em:'corporativo@empaquesind.com', tel:'+57 314 200 9944', st:5, rt:'Excelente (4.8 / 5.0)', rc:'#dcfce7', rct:'#15803d'},
+];
+
+/* ================= UTILIDADES ================= */
+const $ = s => document.querySelector(s);
+const stMap = {g:'pill-g', a:'pill-a', r:'pill-r', t:'pill-t', b:'pill-b', gr:'pill-gr', p:'pill-p'};
+const pill = (txt, c) => `<span class="pill ${stMap[c]}">${txt}</span>`;
+const ICONS = {
+  spark:'<path d="M12 3l1.9 4.7 4.7 1.3-4.7 1.9L12 15.6l-1.9-4.7L5.4 9l4.7-1.3L12 3z"/>',
+  pen:'<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
+  bottle:'<path d="M10 2h4v3.5L16.5 8v11a2.5 2.5 0 0 1-2.5 2.5h-4A2.5 2.5 0 0 1 7.5 19V8L10 5.5V2z"/><path d="M7.5 12h9M7.5 16h9"/>',
+  cup:'<path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/><path d="M17 9h2a2.5 2.5 0 0 1 0 5h-2M7 2v2.5M11 2v2.5"/>',
+  doc:'<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v4h4M9 11h6M9 15h4"/>',
+  milk:'<path d="M8.5 2.5h7L18 6v14a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V6l2.5-3.5z"/><path d="M6 6.5h12M9 11h6"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  dl:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
+  edit:'<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>',
+  trend:'<path d="M7 17 17 7M8 7h9v9"/>',
+  box:'<path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  users:'<circle cx="9" cy="8" r="3.3"/><path d="M2.5 20c0-3.3 2.9-5.4 6.5-5.4s6.5 2.1 6.5 5.4"/><circle cx="17" cy="9" r="2.5"/><path d="M15.8 14.7c3 .4 5 2.3 5 5.3"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>',
+};
+const svgI = (n, s=17) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]}</svg>`;
+const stars = n => Array.from({length:5},(_,i)=>`<span style="color:${i<n?'#f59e0b':'#d1d5db'}">★</span>`).join('');
+
+let toastT;
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+
+function openDrawer(){ $('#drawer').classList.add('open'); $('#backdrop').classList.add('show'); }
+function closeAll(){ $('#drawer').classList.remove('open'); $('#backdrop').classList.remove('show'); $('#sheet-wrap').classList.remove('show'); }
+function openSheet(html){ $('#sheet').innerHTML='<div class="grab"></div>'+html; $('#sheet-wrap').classList.add('show'); }
+
+/* ================= GRÁFICOS SVG ================= */
+function barsSVG(data, colors, max, labels, h=180){
+  const W=340, H=h, pL=8, pB=22, pT=8, iw=W-pL-8, ih=H-pT-pB, gw=iw/data.length, bw=Math.min(16, gw*0.28);
+  let o='';
+  data.forEach((d,i)=>{ const gx=pL+i*gw+gw/2;
+    d.forEach((v,k)=>{ const bh=v/max*ih;
+      o+=`<rect x="${gx-(d.length*bw+(d.length-1)*3)/2+k*(bw+3)}" y="${pT+ih-bh}" width="${bw}" height="${bh}" rx="3" fill="${colors[k]}" onclick="toast('${labels[i]}: ${v}')" style="pointer-events:auto"/>`;});
+    o+=`<text x="${gx}" y="${H-6}" text-anchor="middle" font-size="8.5" fill="#64748b">${labels[i]}</text>`;});
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" style="pointer-events:none">${o}</svg>`;
+}
+function lineSVG(a, b, max, labels, fmt){
+  const W=340, H=190, pL=36, pB=20, pT=10, iw=W-pL-8, ih=H-pT-pB, n=labels.length;
+  const X=i=>pL+i*(iw/(n-1)), Y=v=>pT+ih-(v/max)*ih;
+  const smooth = vals => { let d=`M ${X(0)} ${Y(vals[0])}`;
+    for(let i=0;i<n-1;i++){ const p0=vals[Math.max(0,i-1)],p1=vals[i],p2=vals[i+1],p3=vals[Math.min(n-1,i+2)];
+      d+=` C ${X(i)+iw/(n-1)/6} ${Y(p1)+(Y(p2)-Y(p0))/6}, ${X(i+1)-iw/(n-1)/6} ${Y(p2)-(Y(p3)-Y(p1))/6}, ${X(i+1)} ${Y(p2)}`;} return d; };
+  let o='';
+  [0.5,0.75,1].forEach(f=>{ o+=`<line x1="${pL}" y1="${Y(max*f)}" x2="${W-8}" y2="${Y(max*f)}" stroke="#eef1f4"/>`; });
+  o+=`<text x="${pL-4}" y="${Y(max)+3}" text-anchor="end" font-size="8" fill="#94a3b8">${fmt(max)}</text>
+      <text x="${pL-4}" y="${Y(max*.5)+3}" text-anchor="end" font-size="8" fill="#94a3b8">${fmt(max*.5)}</text>
+      <text x="${pL-4}" y="${Y(0)+3}" text-anchor="end" font-size="8" fill="#94a3b8">$0</text>`;
+  o+=`<path d="${smooth(a)} L ${X(n-1)} ${Y(0)} L ${X(0)} ${Y(0)} Z" fill="#16303e" opacity=".08"/>
+      <path d="${smooth(b)} L ${X(n-1)} ${Y(0)} L ${X(0)} ${Y(0)} Z" fill="#0f766e" opacity=".13"/>
+      <path d="${smooth(a)}" fill="none" stroke="#16303e" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="${smooth(b)}" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linecap="round"/>
+      <line x1="${X(3)}" y1="${Y(a[3])}" x2="${X(3)}" y2="${Y(0)}" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3 3"/>`;
+  labels.forEach((l,i)=> o+=`<text x="${X(i)}" y="${H-5}" text-anchor="middle" font-size="8" fill="#64748b">${l}</text>`);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${o}</svg>`;
+}
+
+/* ================= VISTAS ================= */
+const chartVC = barsSVG([[330,220],[420,260],[360,240],[470,280],[450,270],[540,300]], ['#0f766e','#cbd5e1'], 600, ['Abr','May','Jun','Jul','Ago','Sep']);
+const chartSal = barsSVG([[2,3],[2,4],[3,5],[5,12],[2,3],[1,3]], ['#f59e0b','#0f766e'], 14, ['01','06','12','18','21','24']);
+const chartFac = barsSVG([[5,14],[6,16],[8,19],[14,34],[3,12],[2,15]], ['#f59e0b','#16303e'], 40, ['01','06','12','18','21','24']);
+const chartLin = lineSVG([820,985,905,2240,1700,2600],[500,560,540,940,730,1400],3000,['01','06','12','18','21','24'], v=>v>=1000?'$'+(v/1000).toFixed(1)+'M':'$'+v+'k');
+
+const VIEWS = {
+'inicio': { t:'Panel general', s:'Domingo, 27 de septiembre · Sucursal Centro', fab:false, html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">Ventas netas</div><div class="v">$535.526</div><div class="d up">↗ +12,4% vs. período anterior</div></div>
+    <div class="kpi"><div class="l">Ganancia bruta</div><div class="v">$210.155</div><div class="d up">↗ +8,7% margen 39,2%</div></div>
+    <div class="kpi"><div class="l">Productos por vencer</div><div class="v">4</div><div class="d dim">Próximos 10 días</div></div>
+    <div class="kpi"><div class="l">Productos críticos</div><div class="v">12</div><div class="d warn">↗ +4 esta semana</div></div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px;">Ventas y costos</b>
+    <div style="font-size:11px;color:var(--muted-2);margin:2px 0 8px;">Evolución mensual · últimos 6 meses</div>
+    ${chartVC}
+    <div class="legend"><span><span class="ldot" style="background:#0f766e"></span>Ventas</span><span><span class="ldot" style="background:#cbd5e1"></span>Costos</span></div>
+  </div>
+  <div class="sec-title">Alertas operativas ${pill('7 NUEVAS','p')}</div>
+  ${ALERTAS.map(a=>`<div class="lcard"><span class="icon-sq" style="background:${a.c==='r'?'#fee2e2':a.c==='a'?'#fef3c7':a.c==='t'?'#d8efec':'#e2e8f0'};color:${a.c==='r'?'#b91c1c':a.c==='a'?'#b45309':a.c==='t'?'#0f766e':'#475569'}">${svgI('box',18)}</span>
+    <div class="grow"><b class="t">${a.t}</b><div class="s">${a.s}</div></div>${pill(a.tag, a.c)}</div>`).join('')}
+  <div class="sec-title">Ventas recientes</div>
+  ${VENTAS_R.map(v=>`<div class="lcard"><span class="icon-sq" style="background:#d8efec;color:#0f766e">${svgI('doc',17)}</span>
+    <div class="grow"><b class="t">${v.f} · ${v.c}</b><div class="s">${v.h} · ${v.canal}</div></div>
+    <div style="text-align:right;"><div class="amount">${v.total}</div>${pill(v.e, v.e==='PAGADA'?'t':v.e==='PENDIENTE'?'a':'r')}</div></div>`).join('')}
+  <div class="sec-title">Stock crítico ${pill('12 PRODUCTOS','r')}</div>
+  <div class="card" style="padding:6px 14px;">
+  ${STOCK_C.map(p=>{const pc=Math.min(100,p.u/p.m*100);const col=pc<50?'#dc2626':pc<75?'#f59e0b':'#0f766e';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+      <div style="flex:1;min-width:0;"><b style="font-size:13px;">${p.n}</b><div style="font-size:10px;color:var(--muted-2);">${p.c}</div></div>
+      <div class="pbar"><i style="width:${pc}%;background:${col};"></i></div>
+      <div style="font-size:10.5px;color:var(--muted);white-space:nowrap;text-align:right;width:76px;"><b style="color:var(--text);">${p.u} und.</b><br>mín. ${p.m}</div></div>`;}).join('')}
+  </div>
+  <div class="foot-note"><span class="sync"></span>Base de datos sincronizada · Lector de código de barras activo</div>`},
+
+'inventario-categoria': { t:'Gestión de Categorías', s:'Inventario · Categoría', back:'inventario', html:`
+  <div style="display:flex;gap:10px;margin-bottom:12px;">
+    <div class="search" style="flex:1;margin-bottom:0;"><input id="buscar" placeholder="Buscar categoría..." oninput="filtrarTarjetas('buscar','.cat-card')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+    <button class="btn btn-teal" style="padding:0 16px;" onclick="openForm('categoria')" aria-label="Agregar categoría">+</button>
+  </div>
+  <div id="lista-cards">
+  ${CATEGORIAS.map(c=>`<div class="lcard cat-card" data-q="${(c.n+' '+c.meta).toLowerCase()}">
+    <span class="icon-sq" style="background:${c.bg};color:${c.c};">${svgI(c.icon,19)}</span>
+    <div class="grow"><div class="row2" style="margin-top:0;"><b class="t">${c.n}</b>${pill(c.tag,'g')}${c.extra?pill(c.extra,'a'):''}</div>
+    <div class="s">${c.meta}</div>
+    <div class="row2"><button class="btn btn-line" style="min-height:40px;font-size:12.5px;padding:0 14px;" onclick="toast('La edición se habilitará con los formularios')">${svgI('edit',13)} Editar</button>
+    <button class="icon-btn" style="width:40px;height:40px;" aria-label="Eliminar" onclick="toast('Eliminación deshabilitada en el prototipo')">${svgI('trash',15)}</button></div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-cat">Mostrando 4 de 4 categorías registradas</div>`},
+
+'inventario-producto': { t:'Inventario de Productos', s:'Inventario · Producto', back:'inventario', html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">TOTAL</div><div class="v" style="font-size:16px;">320 Artículos</div></div>
+    <div class="kpi"><div class="l">STOCK CRÍTICO</div><div class="v" style="font-size:16px;color:var(--amber);">8 Alertas</div></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:12px;">
+    <div class="search" style="flex:1;margin-bottom:0;"><input id="buscar" placeholder="Buscar por nombre, SKU o categoría…" oninput="buscarProd()"></div>
+    <button class="btn btn-teal" style="padding:0 16px;" onclick="openForm('producto')" aria-label="Nuevo producto">+</button>
+  </div>
+  <div class="chips"><button class="chip on">Todos (Lácteos)</button><button class="chip">Leches</button><button class="chip">Quesos</button><button class="chip">Bebidas</button></div>
+  <div id="prod-res" style="display:none;">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;" id="prod-cnt"></div>
+    ${PRODUCTOS.map(p=>`<div class="lcard prod-card" data-q="${p.key}" ${p.out?'style="border-color:#f3c6c6;background:#fffdfd;"':''}>
+      <span class="icon-sq" style="background:${p.out?'#dcfce7':'#dbeafe'};color:${p.out?'#15803d':'#1d4ed8'};flex-direction:column;gap:1px;"><small style="font-size:6px;letter-spacing:1px;font-weight:800;opacity:.75;">LÁCTEOS</small>${svgI('milk',17)}</span>
+      <div class="grow"><div class="row2" style="margin-top:0;"><b class="t">${p.n}</b>${p.out?pill('AGOTADO','r'):`<span class="pill pill-gr" style="font-weight:600;">${p.f}</span>`}</div>
+      <div class="s">SKU: ${p.sku} · Precio: <b>${p.p}</b></div>
+      <div class="row2">${pill(p.s, p.sc)}<span style="font-size:10px;color:var(--muted-2);">${p.sn}</span>
+      ${p.out?`<button class="btn btn-navy" style="min-height:40px;font-size:12px;padding:0 14px;" onclick="toast('Pedido de stock simulado')">Pedir Stock</button>`:''}</div></div></div>`).join('')}
+  </div>
+  <div class="empty" id="prod-empty">
+    <div class="ic">${svgI('box',24)}</div>
+    <b>Busca un producto para ver resultados</b>
+    Escribe por nombre, SKU o categoría — por ejemplo: <b style="color:var(--teal);">leche</b>
+  </div>
+  <div class="foot-note">Las existencias se sincronizan con las cajas POS cada 15 segundos</div>`},
+
+'inventario-reporte': { t:'Reporte de Salidas', s:'Inventario · Reporte', back:'inventario', html:`
+  <div class="chips" style="align-items:center;">
+    <span style="font-size:11px;color:var(--muted);font-weight:700;flex-shrink:0;">RANGO:</span>
+    <input type="date" value="2024-10-01" style="flex:1;min-width:0;border:1px solid var(--border);border-radius:10px;padding:10px;font-family:var(--font);font-weight:700;font-size:13px;background:#fff;min-height:44px;">
+    <input type="date" value="2024-10-24" style="flex:1;min-width:0;border:1px solid var(--border);border-radius:10px;padding:10px;font-family:var(--font);font-weight:700;font-size:13px;background:#fff;min-height:44px;">
+    <button class="btn btn-navy" style="padding:0 16px;" onclick="toast('Rango de fechas aplicado a la vista')">Filtrar</button>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">CONSUMO INTERNO</div><div class="v">15</div><div class="d up">↗ +3,2% vs. período anterior</div></div>
+    <div class="kpi"><div class="l">DEVOLUCIONES</div><div class="v">30</div><div class="d up">✓ 100% reingresados o dados de baja</div></div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px;">Cantidad de salidas por tipo y fecha</b>
+    <div style="font-size:11px;color:var(--muted-2);margin:2px 0 8px;">Pico el 18 Oct: 12 Devoluciones + 5 Consumo Interno</div>
+    ${chartSal}
+    <div class="legend"><span><span class="ldot" style="background:#f59e0b"></span>Consumo Interno 15 u.</span><span><span class="ldot" style="background:#0f766e"></span>Devoluciones 30 u.</span></div>
+  </div>
+  <div class="foot-note"><span class="sync"></span>Total conciliado: 45 productos · Sincronización: Hoy, 10:45 AM</div>`},
+
+'ventas-pos': { t:'Terminal POS #01', s:'Juan Pérez · Cajero Principal · Turno Mañana', tab:'ventas', fab:true, html:`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    ${pill('● Terminal #01 Online','g')}
+    <button class="btn btn-line" style="min-height:40px;font-size:12px;padding:0 14px;margin-left:auto;" onclick="toast('El cierre de turno es ilustrativo')">Cierre Turno</button>
+  </div>
+  <div class="chips"><button class="chip on">Todos (Lácteos)</button><button class="chip">Leches</button><button class="chip">Quesos</button><button class="chip">Bebidas</button></div>
+  <div class="search"><input placeholder="Buscar producto o código..." oninput="toast('Búsqueda en tiempo real no disponible en el prototipo móvil')"></div>
+  <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;">Toca un producto para agregarlo al ticket · <b style="color:var(--navy);">Modo táctil activo</b></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+  ${POS_PRODUCTOS.map((p,i)=>`<button class="card" style="margin:0;padding:10px;text-align:left;" onclick="addPOS(${i})" aria-label="Añadir ${p.n}">
+    <div style="height:86px;border-radius:10px;background:#fbfcfd;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:8px;">
+      <div style="width:52px;height:72px;border-radius:5px;background:linear-gradient(180deg,${p.pack[0]},${p.pack[1]});display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px;text-align:center;box-shadow:0 3px 8px rgba(0,0,0,.18);">
+        ${p.pack[2]?`<span style="font-size:5.5px;font-weight:800;background:#facc15;color:#713f12;border-radius:2px;padding:1px 4px;">${p.pack[2]}</span>`:''}
+        <span style="font-size:8px;font-weight:900;color:${p.pack[0]==='#f5dc7a'?'#7c5a10':'#fff'};">${p.pack[3]}</span>
+        <span style="font-size:5.5px;font-weight:700;color:${p.pack[0]==='#f5dc7a'?'#7c5a10':'rgba(255,255,255,.85)'};">${p.pack[4]}</span>
+        ${p.pack[5]?`<span style="font-size:5.5px;font-weight:700;background:#fff;color:#334155;border-radius:2px;padding:1px 4px;margin-top:1px;">${p.pack[5]}</span>`:''}
+      </div></div>
+    <b style="font-size:10.5px;letter-spacing:.2px;display:block;">${p.n}</b>
+    <span style="font-size:9px;color:var(--muted);display:block;">${p.d}</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+      <b style="font-size:13.5px;color:var(--navy);">$${p.p.toLocaleString('es-CO')}</b>
+      <span style="color:var(--teal);font-size:11px;font-weight:800;">+ Añadir</span></div>
+  </button>`).join('')}
+  </div>
+  <div class="foot-note"><span class="sync"></span>Base de datos sincronizada · 01:11:41 p.m.</div>`},
+
+'ventas-reportes': { t:'Reporte de Ventas', s:'Ventas · Reportes', back:'ventas', html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">TOTAL FACTURADO ${pill('+14.2%','g')}</div><div class="v">$12'350,126</div><div class="d dim">Ingresos brutos acumulados</div></div>
+    <div class="kpi"><div class="l">TOTAL GANANCIAS ${pill('MARGEN 40.1%','t')}</div><div class="v">$4'956,125</div><div class="d dim">Utilidad neta deducidos costos</div></div>
+  </div>
+  <div class="card"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">NÚMERO VENTAS ${pill('TICKET PROM: $27,444','a')}</div>
+    <div class="v" style="font-size:26px;font-weight:800;margin-top:2px;">450</div>
+    <div class="d dim" style="font-size:11px;">Transacciones procesadas exitosamente</div></div>
+  <div class="card">
+    <b style="font-size:15px;">Ventas Netas vs Ganancias</b>
+    <div style="font-size:11px;color:var(--muted-2);margin:2px 0 8px;">Día récord 18 Oct: Ventas $2'240,000 · Ganancia $940,500</div>
+    ${chartLin}
+    <div class="legend"><span><span class="ldot" style="background:#16303e;border-radius:50%"></span>Ventas Facturadas</span><span><span class="ldot" style="background:#0f766e;border-radius:50%"></span>Ganancias Netas</span></div>
+  </div>`},
+
+'facturas-venta': { t:'Facturas de Venta', s:'Facturas · Venta', back:'facturas', html:`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><b style="font-size:18px;">Facturas de Venta</b>${pill('Módulo DIAN Activo','g')}</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">TOTAL FACTURADO HOY</div><div class="v" style="font-size:16px;">$ 3,842,500 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+    <div class="kpi"><div class="l">COMPROBANTES</div><div class="v" style="font-size:16px;">4 facturas</div></div>
+  </div>
+  <div class="card"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">TICKET PROMEDIO</div>
+    <div class="v" style="font-size:22px;font-weight:800;">$ 960,625 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+  <div class="search"><input id="buscar" placeholder="Buscar por número, cliente o NIT..." oninput="filtrarTarjetas('buscar','.inv-card','Mostrando 4 de 128 comprobantes')"></div>
+  <div class="chips"><button class="chip on">Todas (4)</button><button class="chip">Efectivo</button><button class="chip">Tarjeta / PSE</button><button class="chip">Crédito</button></div>
+  <div id="lista-cards">
+  ${FVENTA.map(v=>`<div class="lcard inv-card" data-q="${(v.f+' '+v.c+' '+v.d+' '+v.cu).toLowerCase()}">
+    <span class="icon-sq" style="background:#d8efec;color:#0f766e;">${svgI('doc',17)}</span>
+    <div class="grow"><div class="row2" style="margin-top:0;"><b class="t">${v.f}</b>${pill(v.e,'g')}<span style="font-size:9.5px;color:var(--muted-2);font-family:monospace;">CUFE: ${v.cu}</span></div>
+    <div class="s">${v.c}<br>${v.d} · ${v.h}</div></div>
+    <div style="text-align:right;"><div class="amount">${v.m}</div>
+    <div class="row2" style="justify-content:flex-end;margin-top:6px;"><button class="icon-btn" style="width:40px;height:40px;" aria-label="Descargar" onclick="toast('Descarga deshabilitada en el prototipo')">${svgI('dl',15)}</button>
+    <button class="icon-btn" style="width:40px;height:40px;" aria-label="Ver" onclick="toast('Vista de comprobante no disponible')">${svgI('eye',15)}</button></div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-inv">Mostrando 4 de 128 comprobantes registrados</div>`},
+
+'facturas-compra': { t:'Facturas de Compra', s:'Facturas · Compra', back:'facturas', html:`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><b style="font-size:18px;">Facturas de Compra</b>${pill('Recepción DIAN Activa','g')}</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">COMPRAS DEL MES</div><div class="v" style="font-size:16px;">$ 8,420,000 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+    <div class="kpi"><div class="l">RECIBIDAS</div><div class="v" style="font-size:16px;">4 facturas</div></div>
+  </div>
+  <div class="search"><input id="buscar" placeholder="Buscar por proveedor, N° o NIT..." oninput="filtrarTarjetas('buscar','.inv-card','Mostrando 4 de 96 facturas de compra')"></div>
+  <div class="chips"><button class="chip on">Todas (4)</button><button class="chip">Pagadas</button><button class="chip">A crédito (30 días)</button><button class="chip">Pendientes</button></div>
+  <div id="lista-cards">
+  ${FCOMPRA.map(v=>`<div class="lcard inv-card" data-q="${(v.f+' '+v.c+' '+v.d+' '+v.cu).toLowerCase()}">
+    <span class="icon-sq" style="background:#d8efec;color:#0f766e;">${svgI('doc',17)}</span>
+    <div class="grow"><div class="row2" style="margin-top:0;"><b class="t">${v.f}</b>${pill(v.e,v.ec)}<span style="font-size:9.5px;color:var(--muted-2);font-family:monospace;">CUFE: ${v.cu}</span></div>
+    <div class="s">${v.c}<br>${v.d} · ${v.h}</div></div>
+    <div style="text-align:right;"><div class="amount">${v.m}</div>
+    <div class="row2" style="justify-content:flex-end;margin-top:6px;"><button class="icon-btn" style="width:40px;height:40px;" aria-label="Descargar" onclick="toast('Descarga deshabilitada en el prototipo')">${svgI('dl',15)}</button>
+    <button class="icon-btn" style="width:40px;height:40px;" aria-label="Ver" onclick="toast('Vista de factura no disponible')">${svgI('eye',15)}</button></div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-inv">Mostrando 4 de 96 facturas de compra registradas</div>`},
+
+'facturas-reportes': { t:'Reporte de Facturas', s:'Facturas · Reportes', back:'facturas', html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">FACTURAS EMITIDAS</div><div class="v">148 <small style="font-size:11px;color:var(--muted);">unid.</small></div><div class="d dim">Promedio 6.2/día · Aprobación 99.4%</div></div>
+    <div class="kpi"><div class="l">TASA DE APROBACIÓN</div><div class="v" style="color:#0d9488;">99.4%</div></div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px;">Facturas ingresadas al POS</b>
+    <div style="font-size:11px;color:var(--muted-2);margin:2px 0 8px;">Pico 18 Oct: 34 Electrónicas + 14 Manuales = 48</div>
+    ${chartFac}
+    <div class="legend"><span><span class="ldot" style="background:#f59e0b"></span>Manual 38 u.</span><span><span class="ldot" style="background:#16303e"></span>Electrónica POS 110 u.</span></div>
+  </div>
+  <div class="card">
+    <b style="font-size:15px;">Facturas de compra</b>
+    <div class="s" style="font-size:11.5px;color:var(--muted);margin-top:6px;">96 recibidas · <b style="color:var(--text);">$ 8,420,000</b> monto consolidado · 18 proveedores únicos</div>
+  </div>
+  <div class="foot-note">Última sincronización con DIAN: Hoy, 10:45 AM</div>`},
+
+'clientes-lista': { t:'Lista de Clientes', s:'Clientes · Lista', fab:false, html:`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><b style="font-size:18px;">Lista de Clientes</b>${pill('Directorio Activo','g')}
+    <button class="btn btn-teal" style="padding:0 16px;margin-left:auto;" onclick="openForm('cliente')" aria-label="Nuevo cliente">+</button></div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">TOTAL CLIENTES</div><div class="v">1,428</div><div class="d up">↗ +12% este mes</div></div>
+    <div class="kpi"><div class="l">FRECUENTES</div><div class="v">384</div><div class="d dim">26.8% recurrencia</div></div>
+  </div>
+  <div class="card" style="padding:12px 14px;"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">TICKET PROMEDIO CLIENTE</div>
+    <div class="v" style="font-size:22px;font-weight:800;">$ 145,200 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+  <div class="search"><input id="buscar" placeholder="Buscar por nombre, documento o teléfono..." oninput="filtrarTarjetas('buscar','.cli-card','Mostrando 5 de 1,428 clientes')"></div>
+  <div class="chips"><button class="chip on">Todas (1,428)</button><button class="chip">Personas Naturales</button><button class="chip">Empresas / NIT</button><button class="chip">Frecuentes</button></div>
+  <div id="lista-cards">
+  ${CLIENTES.map(c=>`<div class="lcard cli-card" data-q="${(c.n+' '+c.d+' '+c.s).toLowerCase()}">
+    <span class="avatar" style="background:${c.bg};">${c.ini}</span>
+    <div class="grow"><b class="t">${c.n}</b><div class="s">${c.s}</div>
+    <div class="row2">${pill(c.tag,c.tc)}<span style="font-size:10.5px;color:var(--muted);">${c.d} · ${c.dc}</span></div>
+    <div class="s" style="margin-top:4px;">Última compra: <b style="color:var(--text);">${c.lb}</b> · ${c.f}</div></div>
+    <button class="icon-btn" style="width:44px;height:44px;" aria-label="Ver cliente" onclick="toast('Historial no disponible en el prototipo')">${svgI('eye',16)}</button></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-cli">Mostrando 5 de 1,428 clientes registrados</div>`},
+
+'clientes-reporte': { t:'Reporte de Clientes', s:'Clientes · Reporte', fab:false, html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">CLIENTES CON COMPRAS ${pill('+12%','g')}</div><div class="v">1,428</div><div class="d dim">100% transacciones verificadas</div></div>
+    <div class="kpi"><div class="l">PROMEDIO FRECUENCIA</div><div class="v">24 <small style="font-size:11px;color:var(--muted);">compras</small></div></div>
+  </div>
+  <div class="card"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">CLIENTE TOP FACTURACIÓN</div>
+    <b style="font-size:15px;">Roblete Guiliman</b> <span style="font-size:11px;color:var(--muted);">★ 3.0/5.0 · 94% cumplimiento</span>
+    <div class="v" style="font-size:20px;font-weight:800;margin-top:2px;">$527,502 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+  <div class="search"><input id="buscar" placeholder="Buscar por nombre, C.C o volumen..." oninput="filtrarTarjetas('buscar','.top-card','Mostrando 5 de 1,428 clientes')"></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;"><button class="chip on" style="flex:1;text-align:center;">Top Compradores</button><button class="chip" style="flex:1;text-align:center;">Mayor Frecuencia</button></div>
+  <div id="lista-cards">
+  ${TOP_CLIENTES.map((c,i)=>`<div class="lcard top-card" data-q="${(c.n+' '+c.id).toLowerCase()}">
+    <span class="avatar" style="background:${c.bg};">${c.ini}</span>
+    <div class="grow"><b class="t">#${i+1} ${c.n}</b><div class="s">${pill(c.tier,c.tc)} C.C: ${c.id}</div>
+    <div class="row2"><span class="pill pill-gr" style="font-weight:700;">${c.num} compras</span><b style="font-size:14px;">${c.m} <small style="font-size:9px;color:var(--muted-2);">COP</small></b></div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-top">Mostrando 5 de 1,428 clientes registrados</div>`},
+
+'proveedores-lista': { t:'Lista de Proveedores', s:'Proveedores · Lista', fab:false, html:`
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><b style="font-size:18px;">Lista de Proveedores</b>${pill('Directorio Comercial','g')}
+    <button class="btn btn-teal" style="padding:0 16px;margin-left:auto;" onclick="toast('El formulario de proveedores está pendiente')" aria-label="Nuevo proveedor">+</button></div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">REGISTRADOS</div><div class="v">48</div><div class="d up">↗ +4 este trimestre</div></div>
+    <div class="kpi"><div class="l">FRECUENTES</div><div class="v">24</div><div class="d up">✔ 98% entregas a tiempo</div></div>
+  </div>
+  <div class="card" style="padding:12px 14px;"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">COMPRAS FACTURADAS (MES)</div>
+    <div class="v" style="font-size:22px;font-weight:800;">$ 8,420,000 <small style="font-size:10px;color:var(--muted);">COP</small></div></div>
+  <div class="search"><input id="buscar" placeholder="Buscar por razón social, NIT, contacto o ciudad..." oninput="filtrarTarjetas('buscar','.prov-card','Mostrando 4 de 48 proveedores')"></div>
+  <div class="chips"><button class="chip on">Todas (48)</button><button class="chip">Alimentos</button><button class="chip">Aseo e Higiene</button><button class="chip">Papelería</button></div>
+  <div id="lista-cards">
+  ${PROVEEDORES.map(p=>`<div class="lcard prov-card" data-q="${(p.n+' '+p.nit+' '+p.cat+' '+p.rg).toLowerCase()}">
+    <span class="avatar" style="background:${p.bg};">${p.ini}</span>
+    <div class="grow"><b class="t">${p.n}</b><div class="s">${p.nit} · ${p.rg}</div>
+    <div class="row2"><span class="pill" style="background:${p.cc};color:${p.ct};">${p.cat}</span>${pill(p.pay,p.pc)}</div>
+    <div class="s" style="margin-top:4px;">${p.con}</div>
+    <div class="s">Último: <b style="color:var(--text);">${p.m} COP</b> · ${p.f}</div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-prov">Mostrando 4 de 48 proveedores registrados</div>`},
+
+'proveedores-reporte': { t:'Reporte de Proveedores', s:'Proveedores · Reporte', fab:false, html:`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="l">EVALUADOS ${pill('+4 trimestre','g')}</div><div class="v">48</div><div class="d dim">100% con contratos vigentes</div></div>
+    <div class="kpi"><div class="l">COMPRAS (MES)</div><div class="v" style="font-size:17px;">$ 8,420,000</div></div>
+  </div>
+  <div class="card"><div class="l" style="font-size:11px;color:var(--muted);font-weight:700;">PROVEEDOR REFERENCIA</div>
+    <b style="font-size:15px;">Auramita S.A</b> <span style="font-size:12px;color:var(--amber);">★ 3.0/5.0</span>
+    <div class="d up" style="font-size:11px;">✔ 94% cumplimiento en pedidos</div></div>
+  <div class="search"><input id="buscar" placeholder="Buscar por nombre, ID o email..." oninput="filtrarTarjetas('buscar','.rate-card','Mostrando 4 de 48 proveedores evaluados')"></div>
+  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;">
+    <button class="chip on" style="flex-shrink:0;">Todos los puntajes (48)</button><button class="chip" style="flex-shrink:0;">★ 5 Estrellas (18)</button><button class="chip" style="flex-shrink:0;">★ 3-4 (24)</button><button class="chip" style="flex-shrink:0;">★ &lt;3 (6)</button></div>
+  <div id="lista-cards">
+  ${RATING_P.map(p=>`<div class="lcard rate-card" data-q="${(p.n+' '+p.id+' '+p.em).toLowerCase()}">
+    <span class="avatar" style="background:${p.bg};">${p.ini}</span>
+    <div class="grow"><b class="t">${p.n}</b><div class="s">${p.tag} · ID ${p.id}</div>
+    <div class="s">${p.em} · ${p.tel}</div>
+    <div style="font-size:14px;letter-spacing:2px;margin-top:4px;">${stars(p.st)} <span class="pill" style="background:${p.rc};color:${p.rct};margin-left:4px;">${p.rt}</span></div></div></div>`).join('')}
+  </div>
+  <div class="foot-note" id="cnt-rate">Mostrando 4 de 48 proveedores evaluados</div>`},
+};
+
+/* ================= ROUTER Y NAVEGACIÓN ================= */
+const TABS = { inicio:'inicio', inventario:'inventario-categoria', ventas:'ventas-pos', facturas:'facturas-venta' };
+const SUBSEGS = {
+  inventario: [['Categoría','inventario-categoria'],['Producto','inventario-producto'],['Reporte','inventario-reporte']],
+  ventas: [['POS','ventas-pos'],['Reportes','ventas-reportes']],
+  facturas: [['Venta','facturas-venta'],['Compra','facturas-compra'],['Reportes','facturas-reportes']],
+};
+let current = 'inicio', segActive = {};
+
+function go(id){
+  current = id; closeAll();
+  const v = VIEWS[id];
+  $('#h-title').textContent = v.t;
+  $('#h-sub').textContent = v.s;
+  const tab = v.tab || v.back || (id==='inicio' ? 'inicio' : null);
+  document.querySelectorAll('#tabbar button[data-tab]').forEach(b=>{
+    if (b.dataset.tab === tab) b.setAttribute('aria-current','page');
+    else b.removeAttribute('aria-current');
+  });
+  $('#fab').hidden = !v.fab;
+  let seg = '';
+  const parent = v.back;
+  if (parent && SUBSEGS[parent]){
+    segActive[parent] = id;
+    seg = `<div class="seg" role="tablist">${SUBSEGS[parent].map(([n,vid])=>
+      `<button role="tab" aria-selected="${vid===id}" class="${vid===id?'on':''}" onclick="go('${vid}')">${n}</button>`).join('')}</div>`;
+  }
+  $('#view').innerHTML = seg + v.html;
+  $('#view').scrollTop = 0;
+}
+
+document.querySelectorAll('#tabbar button[data-tab]').forEach(b=>{
+  b.addEventListener('click', ()=>{ if(b.dataset.tab==='mas'){openDrawer();return;} go(TABS[b.dataset.tab]); });
+});
+
+/* ================= BUSCADORES ================= */
+function filtrarTarjetas(inputId, sel, baseTxt){
+  const q = document.getElementById(inputId).value.trim().toLowerCase();
+  let n = 0;
+  document.querySelectorAll(sel).forEach(c=>{
+    const hit = c.dataset.q.includes(q);
+    c.style.display = hit ? '' : 'none';
+    if (hit) n++;
+  });
+  const cnt = document.querySelector('#lista-cards + .foot-note, .foot-note[id^="cnt"]');
+  if (cnt) cnt.textContent = q ? `${n} resultados para "${document.getElementById(inputId).value.trim()}"` : baseTxt;
+}
+function buscarProd(){
+  const q = document.getElementById('buscar').value.trim().toLowerCase();
+  const res = document.getElementById('prod-res'), emp = document.getElementById('prod-empty');
+  if (!q){ res.style.display='none'; emp.style.display='block'; return; }
+  res.style.display='block'; emp.style.display='none';
+  let n = 0;
+  document.querySelectorAll('.prod-card').forEach(c=>{
+    const hit = c.dataset.q.includes(q); c.style.display = hit?'':'none'; if (hit) n++;
+  });
+  document.getElementById('prod-cnt').textContent = n ? `${n} resultado${n>1?'s':''} para "${document.getElementById('buscar').value.trim()}"` : `Sin resultados para "${document.getElementById('buscar').value.trim()}"`;
+}
+
+/* ================= POS ================= */
+const ticket = [
+  {name:'Leche Alquería', price:5400, qty:1},
+  {name:'Leche Colanta', price:4400, qty:1},
+  {name:'Leche deslactosada', price:11500, qty:1},
+];
+const fmt = n => '$ ' + n.toLocaleString('es-CO');
+function renderTicket(){
+  const box = document.getElementById('tk-items'); if (!box) return;
+  box.innerHTML = ticket.map(i=>`<div class="t-item"><b style="color:var(--navy);">${i.qty}</b> ${i.name}<span class="dots"></span><b>${fmt(i.price*i.qty)}</b></div>`).join('');
+  const total = ticket.reduce((s,i)=>s+i.price*i.qty,0);
+  const count = ticket.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('tk-total').textContent = fmt(total);
+  document.getElementById('tk-cnt').textContent = count + (count===1?' artículo':' artículos');
+  document.getElementById('fab-cnt').textContent = count;
+}
+function addPOS(i){
+  const p = POS_PRODUCTOS[i];
+  const label = p.n==='LECHE ALQUERÍA' ? 'Leche Alquería'
+              : p.n==='LECHE COLANTA' ? 'Leche Colanta'
+              : p.n==='LECHE DESLACTOSADA' ? 'Leche deslactosada' : 'Queso campesino';
+  const ex = ticket.find(t=>t.name===label);
+  if (ex) ex.qty++; else ticket.push({name:label, price:p.p, qty:1});
+  renderTicket();
+  toast(`${label} añadido al ticket`);
+}
+function openTicket(){
+  openSheet(`
+    <div class="sb-title">Ticket de venta <span style="font-size:11px;color:var(--muted);font-weight:600;" id="tk-cnt">3 artículos</span></div>
+    <div id="tk-items" style="overflow-y:auto;max-height:200px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);margin-top:8px;padding-top:10px;">
+      <button style="background:none;border:none;color:var(--red);font-size:12px;font-weight:700;text-decoration:underline;" onclick="ticket.length=0;renderTicket();">Limpiar canasta</button>
+      <b style="font-size:20px;color:var(--navy);" id="tk-total">$ 21.300</b>
+    </div>
+    <div class="pay-display" style="margin-top:10px;"><small>EFECTIVO RECIBIDO</small>$ <span id="amt">0</span></div>
+    <div class="keypad">
+      ${[1,2,3,'+',4,5,6,'−',7,8,9,'C','%','0','.','↵'].map(k=>{
+        const cls = k==='C'?'key r':k==='↵'?'key ok':'key';
+        return `<button class="${cls}" data-k="${k}" aria-label="Tecla ${k}">${k}</button>`;}).join('')}
+    </div>
+    <button class="btn" style="background:var(--red);color:#fff;width:100%;margin-top:10px;font-size:16px;" onclick="pay()">PAGAR</button>
+  `);
+  renderTicket();
+  document.querySelectorAll('.key').forEach(k=>k.addEventListener('click',()=>press(k.dataset.k)));
+}
+let amt='0';
+function drawAmt(){ const e=document.getElementById('amt'); if(e) e.textContent = Number(amt).toLocaleString('es-CO'); }
+function press(k){
+  if (k==='C') amt='0';
+  else if (k==='↵'){ pay(); return; }
+  else if (k==='+'||k==='−'||k==='%') return;
+  else amt = (amt==='0'&&k!=='.') ? k : amt+k;
+  drawAmt();
+}
+function pay(){
+  toast(amt==='0' ? 'Ingresa el efectivo recibido' : `Pago registrado por ${fmt(Number(amt))} (simulado)`);
+  amt='0'; drawAmt();
+}
+
+/* ================= FORMULARIOS MODALES ================= */
+let currentForm = 'categoria';
+const FORM_DEFS = {
+  categoria: { fields: `
+    <input class="ffield" placeholder="Nombre..." autocomplete="off">
+    <input class="ffield" placeholder="Código..." autocomplete="off">
+    <textarea class="ffield" placeholder="Descripción..."></textarea>` },
+  cliente: { fields: `
+    <div class="frow"><input class="ffield" placeholder="Nombres..." autocomplete="off"><input class="ffield" placeholder="Apellidos..." autocomplete="off"></div>
+    <input class="ffield" placeholder="Documento identidad..." autocomplete="off">` },
+  producto: { fields: `
+    <div class="frow"><input class="ffield" placeholder="Nombre..." autocomplete="off">
+    <select class="ffield fselect" aria-label="Categoría"><option value="" selected>Categoria</option><option>Aseo</option><option>Papelería</option><option>Bebidas alcohólicas</option><option>Alimentos y bebidas</option></select></div>
+    <div class="frow"><input class="ffield" placeholder="ID" autocomplete="off"><input class="ffield" placeholder="Valor..." inputmode="decimal" autocomplete="off"></div>` },
+};
+const FORM_OK = {
+  categoria: 'Categoría agregada exitosamente',
+  cliente: 'Cliente agregado exitosamente',
+  producto: 'Producto agregado exitosamente',
+};
+function closeForm(){ document.getElementById('form-overlay').classList.remove('show'); }
+function openForm(t){
+  currentForm = t;
+  document.getElementById('form-card').innerHTML = `
+    <button class="form-x" aria-label="Cerrar formulario" onclick="closeForm()">✕</button>
+    <div class="form-logo"><span class="fl-mark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 20V5h3.2l6 9.5V5H18.5v15h-3.2l-6-9.5V20H6z" fill="#fff"/><path d="M13.2 15.8l2.9 3.5 4.6-5.4" stroke="#fff" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="3" width="5.2" height="2.6" fill="#aeb9c4" transform="rotate(-28 20.6 4.3)"/></svg></span><span><b>Nexo</b><small>VENTA</small></span></div>
+    ${FORM_DEFS[t].fields}
+    <button class="btn btn-ok" onclick="submitForm()">Aceptar</button>`;
+  document.getElementById('form-overlay').classList.add('show');
+}
+function submitForm(){
+  const card = document.getElementById('form-card');
+  const hayVacios = [...card.querySelectorAll('input, textarea, select')].some(f => !f.value.trim());
+  if (hayVacios) {
+    card.innerHTML = `<div class="form-err"><span class="erric"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg></span>Error al ingresar datos</div>`;
+    setTimeout(() => openForm(currentForm), 1700);
+    return;
+  }
+  card.innerHTML = `<div class="form-ok"><span class="okic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg></span>${FORM_OK[currentForm]}</div>`;
+  setTimeout(closeForm, 1700);
+}
+
+go('inicio');
+</script>
+</body>
+</html>
